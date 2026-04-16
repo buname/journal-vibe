@@ -30,10 +30,12 @@ export function DailyPerspectiveBar() {
           Daily perspective
         </span>
         {quote ? (
-          <p className="min-w-0 font-quote text-[15px] font-semibold leading-relaxed tracking-tight text-foreground">
-            <span className="text-foreground/95">{quote.text}</span>
+          <p className="min-w-0 font-quote text-[15px] font-semibold leading-relaxed tracking-tight">
+            <span className="text-foreground/95 [text-shadow:0_0_14px_rgba(0,0,0,0.12),0_0_32px_rgba(0,0,0,0.06)] dark:[text-shadow:0_0_18px_rgba(255,255,255,0.16),0_0_40px_rgba(255,255,255,0.07)]">
+              {quote.text}
+            </span>
             {quote.author ? (
-              <span className="ml-2 text-sm font-semibold text-muted-foreground">
+              <span className="ml-2 text-sm font-semibold text-muted-foreground [text-shadow:0_0_10px_rgba(0,0,0,0.08)] dark:[text-shadow:0_0_12px_rgba(255,255,255,0.1)]">
                 — {quote.author}
               </span>
             ) : null}
