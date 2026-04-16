@@ -1,0 +1,47 @@
+export type DailyQuote = {
+  text: string;
+  author?: string;
+};
+
+/** Curated for trading / mindset / perspective — index chosen by calendar + daily key */
+export const DAILY_QUOTES: DailyQuote[] = [
+  { text: "Opportunity is missed by most because it is dressed in overalls and looks like work.", author: "Thomas Edison" },
+  { text: "The stock market is filled with individuals who know the price of everything, but the value of nothing.", author: "Philip Fisher" },
+  { text: "In trading, process beats outcome in the long run.", author: "Anonymous" },
+  { text: "The goal of a successful trader is to make the best trades. Money is secondary.", author: "Alexander Elder" },
+  { text: "It's not whether you're right or wrong that's important, but how much money you make when you're right.", author: "George Soros" },
+  { text: "Markets can remain irrational longer than you can remain solvent.", author: "John Maynard Keynes" },
+  { text: "Compound interest is the eighth wonder of the world. He who understands it, earns it.", author: "Attributed to Einstein" },
+  { text: "The four most dangerous words in investing are: This time it's different.", author: "Sir John Templeton" },
+  { text: "Risk comes from not knowing what you're doing.", author: "Warren Buffett" },
+  { text: "Time in the market beats timing the market.", author: "Common wisdom" },
+  { text: "The investor's chief problem—and even his worst enemy—is likely to be himself.", author: "Benjamin Graham" },
+  { text: "Know what you own, and know why you own it.", author: "Peter Lynch" },
+  { text: "Price is what you pay. Value is what you get.", author: "Warren Buffett" },
+  { text: "The market is a device for transferring money from the impatient to the patient.", author: "Warren Buffett" },
+  { text: "You can be wrong half the time and still make a fortune.", author: "Howard Marks" },
+  { text: "Trading without a plan is a plan to lose.", author: "Anonymous" },
+  { text: "Confidence comes from discipline and routine, not from luck.", author: "Anonymous" },
+  { text: "Cut losses quickly; let winners run.", author: "Classic" },
+  { text: "Position sizing is risk management.", author: "Van Tharp" },
+  { text: "The trend is your friend until it ends.", author: "Proverb" },
+  { text: "Journal the trade, not just the P&L.", author: "This app" },
+  { text: "The hard part isn't the strategy—it's sticking to it under pressure.", author: "Anonymous" },
+  { text: "If you can't control your emotions, you can't control your money.", author: "Suze Orman" },
+  { text: "Be fearful when others are greedy. Be greedy when others are fearful.", author: "Warren Buffett" },
+  { text: "Every loss is tuition if you write it down.", author: "Anonymous" },
+  { text: "Consistency beats intensity.", author: "James Clear" },
+  { text: "Small disciplines repeated with consistency lead to great achievements.", author: "John Maxwell" },
+  { text: "Detach self-worth from any single trade.", author: "Anonymous" },
+  { text: "What looks like genius is often just patience.", author: "Anonymous" },
+  { text: "Simplicity is the ultimate sophistication.", author: "Leonardo da Vinci" },
+  { text: "Your edge is what you do when nobody is watching: preparation and review.", author: "Anonymous" },
+  { text: "Pain plus reflection equals progress.", author: "Ray Dalio" },
+  { text: "Adaptability is not optional; conditions change.", author: "Anonymous" },
+  { text: "A calm mind sees farther.", author: "Anonymous" },
+  { text: "Systems beat motivation on bad days.", author: "Anonymous" },
+  { text: "Revenge trading is interest on a loan you never needed.", author: "Anonymous" },
+  { text: "The best time to plant a tree was 20 years ago. The second best time is now.", author: "Proverb" },
+  { text: "Progress, not perfection.", author: "Anonymous" },
+  { text: "Clarity comes from writing.", author: "Anonymous" },
+];
