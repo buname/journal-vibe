@@ -24,6 +24,21 @@ export default async function BacktestsPage() {
     where: { userId: session.user.id },
     orderBy: { date: "desc" },
   });
+  const totalBacktests = backtests.length;
+  const averageWinRate =
+    totalBacktests === 0
+      ? 0
+      : backtests.reduce((sum, note) => sum + note.winRate, 0) / totalBacktests;
+  const averageExpectancy =
+    totalBacktests === 0
+      ? 0
+      : backtests.reduce((sum, note) => sum + note.expectancy, 0) /
+        totalBacktests;
+  const positiveExpectancyCount = backtests.filter(
+    (note) => note.expectancy > 0,
+  ).length;
+  const positiveExpectancyRate =
+    totalBacktests === 0 ? 0 : (positiveExpectancyCount / totalBacktests) * 100;
 
   return (
     <div className="space-y-8">
@@ -43,20 +58,74 @@ export default async function BacktestsPage() {
           <Link href="/backtests/new">New backtest</Link>
         </Button>
       </div>
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <Card>
+          <CardHeader className="space-y-1 pb-2">
+            <CardTitle className="text-base">Notes</CardTitle>
+            <CardDescription>Total studies logged.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-semibold tracking-tight">{totalBacktests}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="space-y-1 pb-2">
+            <CardTitle className="text-base">Avg win rate</CardTitle>
+            <CardDescription>Across all backtests.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-semibold tracking-tight">
+              {averageWinRate.toFixed(1)}%
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="space-y-1 pb-2">
+            <CardTitle className="text-base">Avg expectancy</CardTitle>
+            <CardDescription>Mean R per setup.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-semibold tracking-tight">
+              {averageExpectancy.toFixed(2)}R
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="space-y-1 pb-2">
+            <CardTitle className="text-base">Positive expectancy</CardTitle>
+            <CardDescription>Setups above 0R.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-semibold tracking-tight">
+              {positiveExpectancyRate.toFixed(0)}%
+            </p>
+          </CardContent>
+        </Card>
+      </div>
 
       {backtests.length === 0 ? (
         <Card>
           <CardHeader>
             <CardTitle>No backtests yet</CardTitle>
             <CardDescription>
-              Capture win rate, expectancy, and qualitative notes alongside your
-              live journal and trades.
+              Start with one strategy idea and record assumptions before your next
+              live sessions.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Button asChild>
-              <Link href="/backtests/new">Create first note</Link>
-            </Button>
+          <CardContent className="space-y-4">
+            <div className="space-y-1 text-sm text-muted-foreground">
+              <p>- Define market condition and timeframe.</p>
+              <p>- Log expected edge as win rate + expectancy.</p>
+              <p>- Add tags to connect it back to trades and journal notes.</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button asChild>
+                <Link href="/backtests/new">Create first note</Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link href="/trades">Go to trades</Link>
+              </Button>
+            </div>
           </CardContent>
         </Card>
       ) : (
