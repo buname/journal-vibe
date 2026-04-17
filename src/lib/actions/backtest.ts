@@ -15,12 +15,21 @@ function formBacktestPayload(formData: FormData) {
   return {
     strategy: String(formData.get("strategy") ?? ""),
     timeframe: String(formData.get("timeframe") ?? ""),
-    winRate: String(formData.get("winRate") ?? ""),
+    winningTrades: String(formData.get("winningTrades") ?? ""),
+    totalTrades: String(formData.get("totalTrades") ?? ""),
     expectancy: String(formData.get("expectancy") ?? ""),
     notes: String(formData.get("notes") ?? ""),
     date: String(formData.get("date") ?? ""),
     tags: String(formData.get("tags") ?? ""),
   };
+}
+
+function calculateBacktestWinRate(
+  winningTrades: number,
+  totalTrades: number,
+): number {
+  if (totalTrades <= 0) return 0;
+  return (winningTrades / totalTrades) * 100;
 }
 
 function revalidateBacktestSurfaces() {
@@ -49,7 +58,10 @@ export async function createBacktest(
       userId: session.user.id,
       strategy: parsed.data.strategy,
       timeframe: parsed.data.timeframe,
-      winRate: parsed.data.winRate,
+      winRate: calculateBacktestWinRate(
+        parsed.data.winningTrades,
+        parsed.data.totalTrades,
+      ),
       expectancy: parsed.data.expectancy,
       notes: parsed.data.notes,
       date: parsed.data.date,
@@ -94,7 +106,10 @@ export async function updateBacktest(
     data: {
       strategy: parsed.data.strategy,
       timeframe: parsed.data.timeframe,
-      winRate: parsed.data.winRate,
+      winRate: calculateBacktestWinRate(
+        parsed.data.winningTrades,
+        parsed.data.totalTrades,
+      ),
       expectancy: parsed.data.expectancy,
       notes: parsed.data.notes,
       date: parsed.data.date,

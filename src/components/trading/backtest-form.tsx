@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useMemo, useState } from "react";
 
 import {
   createBacktest,
@@ -41,7 +41,8 @@ export function BacktestForm(props: BacktestFormProps) {
       ? {
           strategy: props.backtest.strategy,
           timeframe: props.backtest.timeframe,
-          winRate: String(props.backtest.winRate),
+          winningTrades: String(Math.round(props.backtest.winRate)),
+          totalTrades: "100",
           expectancy: String(props.backtest.expectancy),
           notes: props.backtest.notes ?? "",
           date: formatInputDate(props.backtest.date),
@@ -50,12 +51,27 @@ export function BacktestForm(props: BacktestFormProps) {
       : {
           strategy: "",
           timeframe: "",
-          winRate: "",
+          winningTrades: "",
+          totalTrades: "",
           expectancy: "",
           notes: "",
           date: formatInputDate(new Date()),
           tags: "",
         };
+  const [winningTrades, setWinningTrades] = useState(defaults.winningTrades);
+  const [totalTrades, setTotalTrades] = useState(defaults.totalTrades);
+
+  const computedWinRate = useMemo(() => {
+    const wins = Number(winningTrades);
+    const total = Number(totalTrades);
+
+    if (!Number.isFinite(wins) || !Number.isFinite(total) || total <= 0) {
+      return 0;
+    }
+
+    const boundedWins = Math.min(Math.max(wins, 0), total);
+    return (boundedWins / total) * 100;
+  }, [winningTrades, totalTrades]);
 
   return (
     <form action={formAction} className="space-y-6">
@@ -103,17 +119,31 @@ export function BacktestForm(props: BacktestFormProps) {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="winRate">Win rate (%)</Label>
+          <Label htmlFor="winningTrades">Winning trades</Label>
           <Input
-            id="winRate"
-            name="winRate"
+            id="winningTrades"
+            name="winningTrades"
             type="number"
-            inputMode="decimal"
-            step="any"
+            inputMode="numeric"
+            step={1}
             min={0}
-            max={100}
             required
-            defaultValue={defaults.winRate}
+            value={winningTrades}
+            onChange={(event) => setWinningTrades(event.target.value)}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="totalTrades">Total trades</Label>
+          <Input
+            id="totalTrades"
+            name="totalTrades"
+            type="number"
+            inputMode="numeric"
+            step={1}
+            min={1}
+            required
+            value={totalTrades}
+            onChange={(event) => setTotalTrades(event.target.value)}
           />
         </div>
         <div className="space-y-2">
@@ -126,6 +156,15 @@ export function BacktestForm(props: BacktestFormProps) {
             step="any"
             required
             defaultValue={defaults.expectancy}
+          />
+        </div>
+        <div className="space-y-2 sm:col-span-2">
+          <Label htmlFor="computedWinRate">Win rate (%)</Label>
+          <Input
+            id="computedWinRate"
+            value={computedWinRate.toFixed(1)}
+            readOnly
+            aria-readonly
           />
         </div>
       </div>
