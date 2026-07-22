@@ -119,7 +119,7 @@ export default async function TradesPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <Button variant="outline" size="sm" asChild>
-                        <Link href={`/trades/${trade.id}`}>Edit</Link>
+                        <Link href={`/trades/${trade.id}`}>Open</Link>
                       </Button>
                     </TableCell>
                   </TableRow>

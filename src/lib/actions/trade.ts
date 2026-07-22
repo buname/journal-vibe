@@ -148,7 +148,7 @@ export async function updateTrade(
 
   revalidateTradeSurfaces();
   revalidatePath(`/trades/${id}`);
-  redirect("/trades");
+  redirect(`/trades/${id}`);
 }
 
 export async function deleteTrade(

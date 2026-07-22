@@ -99,7 +99,7 @@ export async function updateJournal(
   revalidatePath(`/journal/${id}`);
   revalidatePath("/notebook");
   revalidatePath("/dashboard");
-  redirect("/journal");
+  redirect(`/journal/${id}`);
 }
 
 export async function deleteJournal(

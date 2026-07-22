@@ -183,7 +183,7 @@ export default async function BacktestsPage() {
                   ) : null}
                 </div>
                 <Button variant="outline" size="sm" asChild>
-                  <Link href={`/backtests/${note.id}`}>Edit</Link>
+                  <Link href={`/backtests/${note.id}`}>Open</Link>
                 </Button>
               </CardHeader>
             </Card>

@@ -122,7 +122,7 @@ export async function updateBacktest(
 
   revalidateBacktestSurfaces();
   revalidatePath(`/backtests/${id}`);
-  redirect("/backtests");
+  redirect(`/backtests/${id}`);
 }
 
 export async function deleteBacktest(

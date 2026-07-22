@@ -1,15 +1,30 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import type { ReactNode } from "react";
 
 import { auth } from "@/auth";
+import { PnlBadge } from "@/components/trading/pnl-badge";
 import { TradeDeleteButton } from "@/components/trading/trade-delete-button";
-import { TradeForm } from "@/components/trading/trade-form";
 import { Button } from "@/components/ui/button";
+import { ImageGallery } from "@/components/ui/image-gallery";
 import { prisma } from "@/lib/db";
+import { formatListDate } from "@/lib/format";
+import { parseTag } from "@/lib/tag-links";
 
 type TradeEntryPageProps = {
   params: Promise<{ id: string }>;
 };
+
+function Detail({ label, value }: { label: string; value: ReactNode }) {
+  return (
+    <div className="space-y-1">
+      <p className="text-xs uppercase tracking-wide text-muted-foreground">
+        {label}
+      </p>
+      <div className="text-sm font-medium text-foreground">{value}</div>
+    </div>
+  );
+}
 
 export default async function TradeEntryPage({ params }: TradeEntryPageProps) {
   const session = await auth();
@@ -27,11 +42,6 @@ export default async function TradeEntryPage({ params }: TradeEntryPageProps) {
     notFound();
   }
 
-  const direction =
-    trade.direction === "LONG" || trade.direction === "SHORT"
-      ? trade.direction
-      : "LONG";
-
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -39,33 +49,79 @@ export default async function TradeEntryPage({ params }: TradeEntryPageProps) {
           <p className="text-xs uppercase tracking-wide text-muted-foreground">
             Trades
           </p>
-          <h1 className="text-2xl font-semibold tracking-tight">Edit trade</h1>
+          <h1 className="flex items-center gap-3 text-2xl font-semibold tracking-tight">
+            {trade.symbol}
+            <span className="text-base font-normal text-muted-foreground">
+              {trade.direction}
+            </span>
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {formatListDate(trade.date)}
+          </p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" asChild>
             <Link href="/trades">Back to list</Link>
           </Button>
+          <Button size="sm" asChild>
+            <Link href={`/trades/${trade.id}/edit`}>Edit</Link>
+          </Button>
           <TradeDeleteButton tradeId={trade.id} />
         </div>
       </div>
-      <TradeForm
-        mode="edit"
-        trade={{
-          id: trade.id,
-          symbol: trade.symbol,
-          direction,
-          entryPrice: trade.entryPrice,
-          exitPrice: trade.exitPrice,
-          size: trade.size,
-          fees: trade.fees,
-          session: trade.session,
-          entryTime: trade.entryTime,
-          notes: trade.notes,
-          date: trade.date,
-          tags: trade.tags,
-          images: trade.images,
-        }}
-      />
+
+      <div className="rounded-xl border border-border/70 bg-card p-5">
+        <div className="grid grid-cols-2 gap-5 sm:grid-cols-3">
+          <Detail label="PnL" value={<PnlBadge pnl={trade.pnl} />} />
+          <Detail label="Entry" value={trade.entryPrice} />
+          <Detail label="Exit" value={trade.exitPrice} />
+          <Detail label="Size" value={trade.size} />
+          <Detail label="Fees" value={trade.fees} />
+          <Detail label="Session" value={trade.session ?? "—"} />
+        </div>
+      </div>
+
+      {trade.tags.length > 0 ? (
+        <div className="flex flex-wrap gap-1.5">
+          {trade.tags.map((rawTag, index) => {
+            const parsed = parseTag(rawTag);
+            if (!parsed.label) return null;
+            const className =
+              "inline-flex rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground";
+            return parsed.sourceUrl ? (
+              <a
+                key={`${rawTag}-${index}`}
+                href={parsed.sourceUrl}
+                target="_blank"
+                rel="noreferrer"
+                className={className}
+              >
+                {parsed.label}
+              </a>
+            ) : (
+              <span key={`${rawTag}-${index}`} className={className}>
+                {parsed.label}
+              </span>
+            );
+          })}
+        </div>
+      ) : null}
+
+      {trade.notes ? (
+        <div className="space-y-2">
+          <h2 className="text-sm font-semibold tracking-tight">Notes</h2>
+          <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
+            {trade.notes}
+          </p>
+        </div>
+      ) : null}
+
+      {trade.images.length > 0 ? (
+        <div className="space-y-2">
+          <h2 className="text-sm font-semibold tracking-tight">Images</h2>
+          <ImageGallery images={trade.images} altLabel="Trade screenshot" />
+        </div>
+      ) : null}
     </div>
   );
 }
