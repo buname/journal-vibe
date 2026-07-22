@@ -1,6 +1,10 @@
 import { z } from "zod";
 
-import { dayInputSchema, tagsFromCommaString } from "@/lib/validations/shared";
+import {
+  dayInputSchema,
+  imagesFromJsonString,
+  tagsFromCommaString,
+} from "@/lib/validations/shared";
 
 export const tradeDirectionSchema = z.enum(["LONG", "SHORT"]);
 
@@ -42,6 +46,7 @@ export const tradeUpsertSchema = z.object({
     }),
   date: dayInputSchema,
   tags: tagsFromCommaString,
+  images: imagesFromJsonString,
 });
 
 export type TradeUpsertInput = z.infer<typeof tradeUpsertSchema>;

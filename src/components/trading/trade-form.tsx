@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { TradeImageUploader } from "@/components/trading/trade-image-uploader";
 import { cn } from "@/lib/utils";
 import { formatInputDate } from "@/lib/format";
 
@@ -32,6 +33,7 @@ type TradeFormProps =
         notes: string | null;
         date: Date;
         tags: string[];
+        images: string[];
       };
     };
 
@@ -66,6 +68,7 @@ export function TradeForm(props: TradeFormProps) {
           notes: props.trade.notes ?? "",
           date: formatInputDate(props.trade.date),
           tags: props.trade.tags.join(", "),
+          images: props.trade.images,
         }
       : {
           symbol: "",
@@ -79,6 +82,7 @@ export function TradeForm(props: TradeFormProps) {
           notes: "",
           date: formatInputDate(new Date()),
           tags: "",
+          images: [] as string[],
         };
 
   return (
@@ -237,6 +241,14 @@ export function TradeForm(props: TradeFormProps) {
           defaultValue={defaults.notes}
           placeholder="Context, screenshots links, emotions…"
         />
+      </div>
+
+      <div className="space-y-2">
+        <Label>Images</Label>
+        <TradeImageUploader name="images" defaultValue={defaults.images} />
+        <p className="text-xs text-muted-foreground">
+          Optional. Attach chart screenshots for this trade.
+        </p>
       </div>
 
       <div className="flex flex-wrap gap-3">

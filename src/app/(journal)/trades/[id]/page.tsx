@@ -63,6 +63,7 @@ export default async function TradeEntryPage({ params }: TradeEntryPageProps) {
           notes: trade.notes,
           date: trade.date,
           tags: trade.tags,
+          images: trade.images,
         }}
       />
     </div>
