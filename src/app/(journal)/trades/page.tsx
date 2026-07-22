@@ -14,12 +14,11 @@ import {
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatListDate } from "@/lib/format";
+import { TradeRow } from "@/components/trading/trade-row";
 import { prisma } from "@/lib/db";
 
 export default async function TradesPage() {
@@ -106,37 +105,17 @@ export default async function TradesPage() {
               </TableHeader>
               <TableBody>
                 {trades.map((trade) => (
-                  <TableRow key={trade.id}>
-                    <TableCell className="whitespace-nowrap text-muted-foreground">
-                      {formatListDate(trade.date)}
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      <div className="flex items-center gap-2">
-                        {trade.images.length > 0 ? (
-                          <div className="h-8 w-12 shrink-0 overflow-hidden rounded border border-border/60 bg-muted/30">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                              src={trade.images[0]}
-                              alt=""
-                              className="h-full w-full object-cover"
-                            />
-                          </div>
-                        ) : null}
-                        <span>{trade.symbol}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {trade.direction}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <PnlBadge pnl={trade.pnl} />
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="outline" size="sm" asChild>
-                        <Link href={`/trades/${trade.id}`}>Open</Link>
-                      </Button>
-                    </TableCell>
-                  </TableRow>
+                  <TradeRow
+                    key={trade.id}
+                    trade={{
+                      id: trade.id,
+                      date: trade.date,
+                      symbol: trade.symbol,
+                      direction: trade.direction,
+                      pnl: trade.pnl,
+                      images: trade.images,
+                    }}
+                  />
                 ))}
               </TableBody>
             </Table>
