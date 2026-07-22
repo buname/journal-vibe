@@ -72,7 +72,7 @@ export async function createBacktest(
   });
 
   revalidateBacktestSurfaces();
-  redirect("/backtests");
+  redirect("/backtests?saved=1");
 }
 
 export async function updateBacktest(
@@ -122,7 +122,7 @@ export async function updateBacktest(
 
   revalidateBacktestSurfaces();
   revalidatePath(`/backtests/${id}`);
-  redirect(`/backtests/${id}`);
+  redirect(`/backtests/${id}?saved=1`);
 }
 
 export async function deleteBacktest(

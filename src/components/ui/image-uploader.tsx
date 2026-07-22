@@ -1,7 +1,7 @@
 "use client";
 
 import { ImagePlus, Loader2, X } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type ImageUploaderProps = {
   name: string;
@@ -58,17 +58,14 @@ export function ImageUploader({
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  async function handleFiles(fileList: FileList | null) {
-    if (!fileList || fileList.length === 0) return;
+  async function processFiles(files: File[]) {
+    const images = files.filter((file) => file.type.startsWith("image/"));
+    if (images.length === 0) return;
     setError(null);
     setProcessing(true);
-
     try {
-      const files = Array.from(fileList).filter((file) =>
-        file.type.startsWith("image/"),
-      );
       const processed: string[] = [];
-      for (const file of files) {
+      for (const file of images) {
         processed.push(await fileToCompressedDataUrl(file));
       }
       setUrls((prev) => [...prev, ...processed]);
@@ -83,6 +80,31 @@ export function ImageUploader({
       }
     }
   }
+
+  async function handleFiles(fileList: FileList | null) {
+    if (!fileList || fileList.length === 0) return;
+    await processFiles(Array.from(fileList));
+  }
+
+  useEffect(() => {
+    const onPaste = (event: ClipboardEvent) => {
+      const items = event.clipboardData?.items;
+      if (!items) return;
+      const files: File[] = [];
+      for (const item of items) {
+        if (item.kind === "file" && item.type.startsWith("image/")) {
+          const file = item.getAsFile();
+          if (file) files.push(file);
+        }
+      }
+      if (files.length > 0) {
+        event.preventDefault();
+        void processFiles(files);
+      }
+    };
+    window.addEventListener("paste", onPaste);
+    return () => window.removeEventListener("paste", onPaste);
+  }, []);
 
   function removeAt(index: number) {
     setUrls((prev) => prev.filter((_, i) => i !== index));
@@ -134,6 +156,9 @@ export function ImageUploader({
           )}
           {processing ? "Adding…" : "Add image"}
         </button>
+        <span className="text-xs text-muted-foreground">
+          or paste a screenshot (Ctrl/Cmd+V)
+        </span>
         <input
           ref={inputRef}
           type="file"

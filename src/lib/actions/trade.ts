@@ -88,7 +88,7 @@ export async function createTrade(
   });
 
   revalidateTradeSurfaces();
-  redirect("/trades");
+  redirect("/trades?saved=1");
 }
 
 export async function updateTrade(
@@ -148,7 +148,7 @@ export async function updateTrade(
 
   revalidateTradeSurfaces();
   revalidatePath(`/trades/${id}`);
-  redirect(`/trades/${id}`);
+  redirect(`/trades/${id}?saved=1`);
 }
 
 export async function deleteTrade(

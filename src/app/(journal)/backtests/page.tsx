@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
+import { BacktestNoteCard } from "@/components/trading/backtest-note-card";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,9 +11,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ImageThumbs } from "@/components/ui/image-thumbs";
-import { formatListDate } from "@/lib/format";
-import { parseTag } from "@/lib/tag-links";
 import { prisma } from "@/lib/db";
 
 export default async function BacktestsPage() {
@@ -132,67 +130,19 @@ export default async function BacktestsPage() {
       ) : (
         <div className="space-y-4">
           {backtests.map((note) => (
-            <Card key={note.id}>
-              <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
-                <div className="space-y-1">
-                  <CardTitle className="text-lg">
-                    <Link
-                      href={`/backtests/${note.id}`}
-                      className="hover:underline"
-                    >
-                      {note.strategy}
-                    </Link>
-                  </CardTitle>
-                  <CardDescription>
-                    {formatListDate(note.date)} · {note.timeframe} · Win{" "}
-                    {note.winRate.toFixed(1)}% · E {note.expectancy.toFixed(2)}R
-                  </CardDescription>
-                  {note.tags.length > 0 ? (
-                    <div className="flex flex-wrap gap-1 pt-1">
-                      {note.tags.map((rawTag, index) => {
-                        const parsed = parseTag(rawTag);
-                        if (!parsed.label) return null;
-
-                        const className =
-                          "inline-flex rounded-full bg-muted px-2 py-0.5 text-[0.7rem] font-medium text-muted-foreground transition-colors hover:bg-muted/80 hover:text-foreground";
-
-                        if (parsed.sourceUrl) {
-                          return (
-                            <a
-                              key={`${rawTag}-${index}`}
-                              href={parsed.sourceUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className={className}
-                            >
-                              {parsed.label}
-                            </a>
-                          );
-                        }
-
-                        return (
-                          <Link
-                            key={`${rawTag}-${index}`}
-                            href={`/notebook?tag=${encodeURIComponent(parsed.label.toLowerCase())}`}
-                            className={className}
-                          >
-                            {parsed.label}
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  ) : null}
-                </div>
-                <Button variant="outline" size="sm" asChild>
-                  <Link href={`/backtests/${note.id}`}>Open</Link>
-                </Button>
-              </CardHeader>
-              {note.images.length > 0 ? (
-                <CardContent className="pt-0">
-                  <ImageThumbs images={note.images} />
-                </CardContent>
-              ) : null}
-            </Card>
+            <BacktestNoteCard
+              key={note.id}
+              note={{
+                id: note.id,
+                strategy: note.strategy,
+                timeframe: note.timeframe,
+                winRate: note.winRate,
+                expectancy: note.expectancy,
+                date: note.date,
+                tags: note.tags,
+                images: note.images,
+              }}
+            />
           ))}
         </div>
       )}

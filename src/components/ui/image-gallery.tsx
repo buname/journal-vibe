@@ -1,7 +1,7 @@
 "use client";
 
-import { X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 
 type ImageGalleryProps = {
   images: string[];
@@ -10,11 +10,24 @@ type ImageGalleryProps = {
 
 export function ImageGallery({ images, altLabel = "Image" }: ImageGalleryProps) {
   const [active, setActive] = useState<number | null>(null);
+  const total = images?.length ?? 0;
+
+  const close = useCallback(() => setActive(null), []);
+  const prev = useCallback(
+    () => setActive((i) => (i === null ? i : (i - 1 + total) % total)),
+    [total],
+  );
+  const next = useCallback(
+    () => setActive((i) => (i === null ? i : (i + 1) % total)),
+    [total],
+  );
 
   useEffect(() => {
     if (active === null) return;
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setActive(null);
+      if (event.key === "Escape") close();
+      if (event.key === "ArrowLeft") prev();
+      if (event.key === "ArrowRight") next();
     };
     window.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
@@ -22,7 +35,7 @@ export function ImageGallery({ images, altLabel = "Image" }: ImageGalleryProps) 
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
     };
-  }, [active]);
+  }, [active, close, prev, next]);
 
   if (!images || images.length === 0) {
     return null;
@@ -52,18 +65,49 @@ export function ImageGallery({ images, altLabel = "Image" }: ImageGalleryProps) 
       {active !== null ? (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-background/50 p-4 backdrop-blur-md duration-300 animate-in fade-in-0"
-          onClick={() => setActive(null)}
+          onClick={close}
           role="dialog"
           aria-modal="true"
         >
           <button
             type="button"
-            onClick={() => setActive(null)}
+            onClick={close}
             className="absolute right-4 top-4 flex size-10 items-center justify-center rounded-full bg-foreground/10 text-foreground backdrop-blur transition hover:bg-foreground/20"
             aria-label="Close"
           >
             <X className="size-5" />
           </button>
+
+          {total > 1 ? (
+            <>
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  prev();
+                }}
+                className="absolute left-4 flex size-10 items-center justify-center rounded-full bg-foreground/10 text-foreground backdrop-blur transition hover:bg-foreground/20"
+                aria-label="Previous"
+              >
+                <ChevronLeft className="size-5" />
+              </button>
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  next();
+                }}
+                className="absolute right-4 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-full bg-foreground/10 text-foreground backdrop-blur transition hover:bg-foreground/20"
+                aria-label="Next"
+              >
+                <ChevronRight className="size-5" />
+              </button>
+              <span className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-full bg-foreground/10 px-3 py-1 text-xs font-medium text-foreground backdrop-blur">
+                {active + 1} / {total}
+              </span>
+            </>
+          ) : null}
+
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={images[active]}

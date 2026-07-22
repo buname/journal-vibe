@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
+import { JournalEntryCard } from "@/components/journal/journal-entry-card";
 import { WeeklyScoreCard } from "@/components/journal/weekly-score-card";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,12 +12,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ImageThumbs } from "@/components/ui/image-thumbs";
-import { StarRatingDisplay } from "@/components/ui/star-rating";
 import { prisma } from "@/lib/db";
-import { formatListDate } from "@/lib/format";
 import { buildWeeklySummaries } from "@/lib/journal/weekly-score";
-import { parseTag } from "@/lib/tag-links";
 
 export default async function JournalListPage() {
   const session = await auth();
@@ -90,68 +87,17 @@ export default async function JournalListPage() {
           <div className="space-y-4">
             <h2 className="text-lg font-semibold tracking-tight">All entries</h2>
             {entries.map((entry) => (
-              <Card key={entry.id}>
-                <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
-                  <div className="space-y-1">
-                    <CardTitle className="text-lg">
-                      <Link
-                        href={`/journal/${entry.id}`}
-                        className="hover:underline"
-                      >
-                        {entry.title}
-                      </Link>
-                    </CardTitle>
-                    <CardDescription>
-                      <span className="flex items-center gap-2">
-                        {formatListDate(entry.date)}
-                        <StarRatingDisplay value={entry.rating} />
-                      </span>
-                      {entry.tags.length > 0 ? (
-                        <span className="block pt-1 text-xs">
-                          {entry.tags.map((rawTag, index) => {
-                            const parsed = parseTag(rawTag);
-                            if (!parsed.label) return null;
-                            const className =
-                              "mr-2 inline-flex rounded-full bg-muted px-2 py-0.5 text-[0.7rem] font-medium text-muted-foreground transition-colors hover:bg-muted/80 hover:text-foreground";
-
-                            if (parsed.sourceUrl) {
-                              return (
-                                <a
-                                  key={`${rawTag}-${index}`}
-                                  href={parsed.sourceUrl}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className={className}
-                                >
-                                  {parsed.label}
-                                </a>
-                              );
-                            }
-
-                            return (
-                              <Link
-                                key={`${rawTag}-${index}`}
-                                href={`/notebook?tag=${encodeURIComponent(parsed.label.toLowerCase())}`}
-                                className={className}
-                              >
-                                {parsed.label}
-                              </Link>
-                            );
-                          })}
-                        </span>
-                      ) : null}
-                    </CardDescription>
-                  </div>
-                  <Button variant="outline" size="sm" asChild>
-                    <Link href={`/journal/${entry.id}`}>Open</Link>
-                  </Button>
-                </CardHeader>
-                {entry.images.length > 0 ? (
-                  <CardContent className="pt-0">
-                    <ImageThumbs images={entry.images} />
-                  </CardContent>
-                ) : null}
-              </Card>
+              <JournalEntryCard
+                key={entry.id}
+                entry={{
+                  id: entry.id,
+                  title: entry.title,
+                  date: entry.date,
+                  rating: entry.rating,
+                  tags: entry.tags,
+                  images: entry.images,
+                }}
+              />
             ))}
           </div>
         </>
