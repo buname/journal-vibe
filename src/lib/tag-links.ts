@@ -17,7 +17,7 @@ function toHttpUrl(value: string): string | undefined {
 
 /**
  * Supported linked-tag syntax:
- *   "search|https://youtube.com/..."
+ *   "keyword|https://..."
  * Everything before "|" is shown as tag label.
  */
 export function parseTag(rawTag: string): ParsedTag {

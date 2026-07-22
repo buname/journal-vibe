@@ -101,7 +101,7 @@ export function JournalForm(props: JournalFormProps) {
           id="tags"
           name="tags"
           defaultValue={defaults.tags}
-          placeholder="search|https://youtube.com/..., fish, squid"
+          placeholder="comma, separated, tags"
         />
         <p className="text-xs text-muted-foreground">
           Optional. Use commas to separate tags. For a source link, use
