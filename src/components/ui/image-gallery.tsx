@@ -36,7 +36,7 @@ export function ImageGallery({ images, altLabel = "Image" }: ImageGalleryProps) 
             key={`${index}-${src.slice(0, 32)}`}
             type="button"
             onClick={() => setActive(index)}
-            className="h-24 w-36 overflow-hidden rounded-lg border border-border/70 bg-muted/30 transition-transform duration-200 hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:h-28 sm:w-44"
+            className="h-32 w-48 overflow-hidden rounded-lg border border-border/70 bg-muted/30 transition-transform duration-200 hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:h-40 sm:w-60"
             aria-label={`Open ${altLabel} ${index + 1}`}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ImageThumbs } from "@/components/ui/image-thumbs";
 import { formatListDate } from "@/lib/format";
 import { parseTag } from "@/lib/tag-links";
 import { prisma } from "@/lib/db";
@@ -186,6 +187,11 @@ export default async function BacktestsPage() {
                   <Link href={`/backtests/${note.id}`}>Open</Link>
                 </Button>
               </CardHeader>
+              {note.images.length > 0 ? (
+                <CardContent className="pt-0">
+                  <ImageThumbs images={note.images} />
+                </CardContent>
+              ) : null}
             </Card>
           ))}
         </div>

@@ -1,3 +1,4 @@
+import { ChevronLeft, Pencil } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import type { ReactNode } from "react";
@@ -59,12 +60,18 @@ export default async function TradeEntryPage({ params }: TradeEntryPageProps) {
             {formatListDate(trade.date)}
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/trades">Back to list</Link>
+        <div className="flex flex-wrap items-center gap-1">
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/trades">
+              <ChevronLeft />
+              Back
+            </Link>
           </Button>
-          <Button size="sm" asChild>
-            <Link href={`/trades/${trade.id}/edit`}>Edit</Link>
+          <Button variant="ghost" size="sm" asChild>
+            <Link href={`/trades/${trade.id}/edit`}>
+              <Pencil />
+              Edit
+            </Link>
           </Button>
           <TradeDeleteButton tradeId={trade.id} />
         </div>

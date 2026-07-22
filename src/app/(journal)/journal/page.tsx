@@ -11,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ImageThumbs } from "@/components/ui/image-thumbs";
 import { StarRatingDisplay } from "@/components/ui/star-rating";
 import { prisma } from "@/lib/db";
 import { formatListDate } from "@/lib/format";
@@ -145,6 +146,11 @@ export default async function JournalListPage() {
                     <Link href={`/journal/${entry.id}`}>Open</Link>
                   </Button>
                 </CardHeader>
+                {entry.images.length > 0 ? (
+                  <CardContent className="pt-0">
+                    <ImageThumbs images={entry.images} />
+                  </CardContent>
+                ) : null}
               </Card>
             ))}
           </div>

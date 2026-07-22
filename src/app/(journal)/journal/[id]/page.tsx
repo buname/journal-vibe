@@ -1,3 +1,4 @@
+import { ChevronLeft, Pencil } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
@@ -47,12 +48,18 @@ export default async function JournalEntryPage({
             <StarRatingDisplay value={entry.rating} />
           </span>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/journal">Back to list</Link>
+        <div className="flex flex-wrap items-center gap-1">
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/journal">
+              <ChevronLeft />
+              Back
+            </Link>
           </Button>
-          <Button size="sm" asChild>
-            <Link href={`/journal/${entry.id}/edit`}>Edit</Link>
+          <Button variant="ghost" size="sm" asChild>
+            <Link href={`/journal/${entry.id}/edit`}>
+              <Pencil />
+              Edit
+            </Link>
           </Button>
           <JournalDeleteButton journalId={entry.id} />
         </div>

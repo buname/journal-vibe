@@ -1,3 +1,4 @@
+import { ChevronLeft, Pencil } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import type { ReactNode } from "react";
@@ -57,12 +58,18 @@ export default async function BacktestEntryPage({
             {formatListDate(note.date)}
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/backtests">Back to list</Link>
+        <div className="flex flex-wrap items-center gap-1">
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/backtests">
+              <ChevronLeft />
+              Back
+            </Link>
           </Button>
-          <Button size="sm" asChild>
-            <Link href={`/backtests/${note.id}/edit`}>Edit</Link>
+          <Button variant="ghost" size="sm" asChild>
+            <Link href={`/backtests/${note.id}/edit`}>
+              <Pencil />
+              Edit
+            </Link>
           </Button>
           <BacktestDeleteButton backtestId={note.id} />
         </div>
