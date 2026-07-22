@@ -103,11 +103,6 @@ export function JournalForm(props: JournalFormProps) {
           defaultValue={defaults.tags}
           placeholder="comma, separated, tags"
         />
-        <p className="text-xs text-muted-foreground">
-          Optional. Use commas to separate tags. For a source link, use
-          <span className="px-1 font-mono">keyword|https://...</span>
-          format.
-        </p>
       </div>
 
       <div className="space-y-2">
