@@ -19,7 +19,10 @@ export const tagsFromCommaString = z
       .slice(0, 30),
   );
 
-function isHttpUrl(value: string): boolean {
+function isAllowedImageSrc(value: string): boolean {
+  if (value.startsWith("data:image/")) {
+    return true;
+  }
   try {
     const url = new URL(value);
     return url.protocol === "http:" || url.protocol === "https:";
@@ -28,7 +31,10 @@ function isHttpUrl(value: string): boolean {
   }
 }
 
-/** Parses a JSON-encoded array of image URLs from a hidden form field. */
+/**
+ * Parses a JSON-encoded array of image sources from a hidden form field.
+ * Accepts base64 image data URLs and http(s) URLs.
+ */
 export const imagesFromJsonString = z
   .string()
   .optional()
@@ -40,7 +46,7 @@ export const imagesFromJsonString = z
       return parsed
         .filter((item): item is string => typeof item === "string")
         .map((item) => item.trim())
-        .filter(isHttpUrl)
+        .filter(isAllowedImageSrc)
         .slice(0, 20);
     } catch {
       return [] as string[];

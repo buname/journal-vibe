@@ -1,6 +1,5 @@
 "use client";
 
-import { upload } from "@vercel/blob/client";
 import { ImagePlus, Loader2, X } from "lucide-react";
 import { useRef, useState } from "react";
 
@@ -9,40 +8,74 @@ type TradeImageUploaderProps = {
   defaultValue?: string[];
 };
 
+const MAX_DIMENSION = 1600;
+const JPEG_QUALITY = 0.82;
+
+/** Reads an image file and returns a size-capped JPEG data URL. */
+function fileToCompressedDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("Could not read file."));
+    reader.onload = () => {
+      const image = new Image();
+      image.onerror = () => reject(new Error("Could not load image."));
+      image.onload = () => {
+        let { width, height } = image;
+        if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+          const scale = Math.min(
+            MAX_DIMENSION / width,
+            MAX_DIMENSION / height,
+          );
+          width = Math.round(width * scale);
+          height = Math.round(height * scale);
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          reject(new Error("Canvas is not supported."));
+          return;
+        }
+        ctx.drawImage(image, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", JPEG_QUALITY));
+      };
+      image.src = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 export function TradeImageUploader({
   name,
   defaultValue = [],
 }: TradeImageUploaderProps) {
   const [urls, setUrls] = useState<string[]>(defaultValue);
-  const [uploading, setUploading] = useState(false);
+  const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   async function handleFiles(fileList: FileList | null) {
     if (!fileList || fileList.length === 0) return;
     setError(null);
-    setUploading(true);
+    setProcessing(true);
 
     try {
-      const files = Array.from(fileList);
-      const uploaded: string[] = [];
+      const files = Array.from(fileList).filter((file) =>
+        file.type.startsWith("image/"),
+      );
+      const processed: string[] = [];
       for (const file of files) {
-        if (!file.type.startsWith("image/")) {
-          continue;
-        }
-        const blob = await upload(file.name, file, {
-          access: "public",
-          handleUploadUrl: "/api/upload",
-        });
-        uploaded.push(blob.url);
+        processed.push(await fileToCompressedDataUrl(file));
       }
-      setUrls((prev) => [...prev, ...uploaded]);
+      setUrls((prev) => [...prev, ...processed]);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Upload failed. Please try again.",
+        err instanceof Error ? err.message : "Could not add image. Try again.",
       );
     } finally {
-      setUploading(false);
+      setProcessing(false);
       if (inputRef.current) {
         inputRef.current.value = "";
       }
@@ -61,7 +94,7 @@ export function TradeImageUploader({
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {urls.map((url, index) => (
             <div
-              key={url}
+              key={`${index}-${url.slice(0, 32)}`}
               className="group relative overflow-hidden rounded-lg border border-border/70 bg-muted/30"
             >
               <a href={url} target="_blank" rel="noopener noreferrer">
@@ -89,15 +122,15 @@ export function TradeImageUploader({
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
-          disabled={uploading}
+          disabled={processing}
           className="inline-flex items-center gap-2 rounded-md border border-input bg-transparent px-3 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {uploading ? (
+          {processing ? (
             <Loader2 className="size-4 animate-spin" />
           ) : (
             <ImagePlus className="size-4" />
           )}
-          {uploading ? "Uploading…" : "Add image"}
+          {processing ? "Adding…" : "Add image"}
         </button>
         <input
           ref={inputRef}
