@@ -54,6 +54,7 @@ export default async function JournalEntryPage({
           date: entry.date,
           rating: entry.rating,
           tags: entry.tags,
+          images: entry.images,
         }}
       />
     </div>

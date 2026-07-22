@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ImageUploader } from "@/components/ui/image-uploader";
 import { StarRating } from "@/components/ui/star-rating";
 import { Textarea } from "@/components/ui/textarea";
 import { formatInputDate } from "@/lib/format";
@@ -26,6 +27,7 @@ type JournalFormProps =
         date: Date;
         rating: number | null;
         tags: string[];
+        images: string[];
       };
     };
 
@@ -43,6 +45,7 @@ export function JournalForm(props: JournalFormProps) {
           date: formatInputDate(props.journal.date),
           rating: props.journal.rating,
           tags: props.journal.tags.join(", "),
+          images: props.journal.images,
         }
       : {
           title: "",
@@ -50,6 +53,7 @@ export function JournalForm(props: JournalFormProps) {
           date: formatInputDate(new Date()),
           rating: null as number | null,
           tags: "",
+          images: [] as string[],
         };
 
   return (
@@ -115,6 +119,18 @@ export function JournalForm(props: JournalFormProps) {
           defaultValue={defaults.content}
           placeholder="Thoughts, plans, market notes…"
         />
+      </div>
+
+      <div className="space-y-2">
+        <Label>Images</Label>
+        <ImageUploader
+          name="images"
+          defaultValue={defaults.images}
+          altLabel="Journal image"
+        />
+        <p className="text-xs text-muted-foreground">
+          Optional. Attach screenshots or photos for this entry.
+        </p>
       </div>
 
       <div className="flex flex-wrap gap-3">

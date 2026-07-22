@@ -9,6 +9,7 @@ import {
   type BacktestActionState,
 } from "@/lib/actions/backtest";
 import { Button } from "@/components/ui/button";
+import { ImageUploader } from "@/components/ui/image-uploader";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,6 +28,7 @@ type BacktestFormProps =
         notes: string | null;
         date: Date;
         tags: string[];
+        images: string[];
       };
     };
 
@@ -47,6 +49,7 @@ export function BacktestForm(props: BacktestFormProps) {
           notes: props.backtest.notes ?? "",
           date: formatInputDate(props.backtest.date),
           tags: props.backtest.tags.join(", "),
+          images: props.backtest.images,
         }
       : {
           strategy: "",
@@ -57,6 +60,7 @@ export function BacktestForm(props: BacktestFormProps) {
           notes: "",
           date: formatInputDate(new Date()),
           tags: "",
+          images: [] as string[],
         };
   const [winningTrades, setWinningTrades] = useState(defaults.winningTrades);
   const [totalTrades, setTotalTrades] = useState(defaults.totalTrades);
@@ -188,6 +192,18 @@ export function BacktestForm(props: BacktestFormProps) {
           defaultValue={defaults.notes}
           placeholder="Sample size, curve fit warnings, screenshots…"
         />
+      </div>
+
+      <div className="space-y-2">
+        <Label>Images</Label>
+        <ImageUploader
+          name="images"
+          defaultValue={defaults.images}
+          altLabel="Backtest screenshot"
+        />
+        <p className="text-xs text-muted-foreground">
+          Optional. Attach chart or result screenshots for this backtest.
+        </p>
       </div>
 
       <div className="flex flex-wrap gap-3">

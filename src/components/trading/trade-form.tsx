@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { TradeImageUploader } from "@/components/trading/trade-image-uploader";
+import { ImageUploader } from "@/components/ui/image-uploader";
 import { cn } from "@/lib/utils";
 import { formatInputDate } from "@/lib/format";
 
@@ -245,7 +245,11 @@ export function TradeForm(props: TradeFormProps) {
 
       <div className="space-y-2">
         <Label>Images</Label>
-        <TradeImageUploader name="images" defaultValue={defaults.images} />
+        <ImageUploader
+          name="images"
+          defaultValue={defaults.images}
+          altLabel="Trade screenshot"
+        />
         <p className="text-xs text-muted-foreground">
           Optional. Attach chart screenshots for this trade.
         </p>

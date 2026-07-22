@@ -56,6 +56,7 @@ export default async function BacktestEntryPage({
           notes: note.notes,
           date: note.date,
           tags: note.tags,
+          images: note.images,
         }}
       />
     </div>

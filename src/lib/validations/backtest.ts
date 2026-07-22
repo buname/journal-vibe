@@ -1,6 +1,10 @@
 import { z } from "zod";
 
-import { dayInputSchema, tagsFromCommaString } from "@/lib/validations/shared";
+import {
+  dayInputSchema,
+  imagesFromJsonString,
+  tagsFromCommaString,
+} from "@/lib/validations/shared";
 
 export const backtestUpsertSchema = z.object({
   strategy: z.string().trim().min(1, "Strategy is required.").max(120),
@@ -23,6 +27,7 @@ export const backtestUpsertSchema = z.object({
     }),
   date: dayInputSchema,
   tags: tagsFromCommaString,
+  images: imagesFromJsonString,
 })
   .refine((data) => data.winningTrades <= data.totalTrades, {
     message: "Winning trades cannot exceed total trades.",

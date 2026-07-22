@@ -21,6 +21,7 @@ function formBacktestPayload(formData: FormData) {
     notes: String(formData.get("notes") ?? ""),
     date: String(formData.get("date") ?? ""),
     tags: String(formData.get("tags") ?? ""),
+    images: String(formData.get("images") ?? ""),
   };
 }
 
@@ -66,6 +67,7 @@ export async function createBacktest(
       notes: parsed.data.notes,
       date: parsed.data.date,
       tags: parsed.data.tags,
+      images: parsed.data.images,
     },
   });
 
@@ -114,6 +116,7 @@ export async function updateBacktest(
       notes: parsed.data.notes,
       date: parsed.data.date,
       tags: parsed.data.tags,
+      images: parsed.data.images,
     },
   });
 

@@ -17,6 +17,7 @@ function formJournalPayload(formData: FormData) {
     content: String(formData.get("content") ?? ""),
     date: String(formData.get("date") ?? ""),
     tags: String(formData.get("tags") ?? ""),
+    images: String(formData.get("images") ?? ""),
     rating: String(formData.get("rating") ?? "0"),
   };
 }
@@ -43,6 +44,7 @@ export async function createJournal(
       content: parsed.data.content,
       date: parsed.data.date,
       tags: parsed.data.tags,
+      images: parsed.data.images,
       rating: parsed.data.rating,
     },
   });
@@ -88,6 +90,7 @@ export async function updateJournal(
       content: parsed.data.content,
       date: parsed.data.date,
       tags: parsed.data.tags,
+      images: parsed.data.images,
       rating: parsed.data.rating,
     },
   });

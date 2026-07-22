@@ -3,9 +3,10 @@
 import { ImagePlus, Loader2, X } from "lucide-react";
 import { useRef, useState } from "react";
 
-type TradeImageUploaderProps = {
+type ImageUploaderProps = {
   name: string;
   defaultValue?: string[];
+  altLabel?: string;
 };
 
 const MAX_DIMENSION = 1600;
@@ -47,10 +48,11 @@ function fileToCompressedDataUrl(file: File): Promise<string> {
   });
 }
 
-export function TradeImageUploader({
+export function ImageUploader({
   name,
   defaultValue = [],
-}: TradeImageUploaderProps) {
+  altLabel = "Screenshot",
+}: ImageUploaderProps) {
   const [urls, setUrls] = useState<string[]>(defaultValue);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -101,7 +103,7 @@ export function TradeImageUploader({
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={url}
-                  alt={`Trade screenshot ${index + 1}`}
+                  alt={`${altLabel} ${index + 1}`}
                   className="aspect-video w-full object-cover transition-opacity group-hover:opacity-90"
                 />
               </a>
