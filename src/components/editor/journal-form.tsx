@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { DatePicker } from "@/components/ui/date-picker";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { StarRating } from "@/components/ui/star-rating";
 import { Textarea } from "@/components/ui/textarea";
@@ -81,14 +82,8 @@ export function JournalForm(props: JournalFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="date">Day</Label>
-        <Input
-          id="date"
-          name="date"
-          type="date"
-          required
-          defaultValue={defaults.date}
-        />
+        <Label>Day</Label>
+        <DatePicker name="date" defaultValue={defaults.date} />
       </div>
 
       <div className="space-y-2">

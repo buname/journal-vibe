@@ -9,6 +9,7 @@ import {
   type BacktestActionState,
 } from "@/lib/actions/backtest";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -212,14 +213,8 @@ export function BacktestForm(props: BacktestFormProps) {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="date">Study date</Label>
-          <Input
-            id="date"
-            name="date"
-            type="date"
-            required
-            defaultValue={defaults.date}
-          />
+          <Label>Study date</Label>
+          <DatePicker name="date" defaultValue={defaults.date} />
         </div>
         <div className="space-y-2">
           <Label htmlFor="winningTrades">Winning trades</Label>

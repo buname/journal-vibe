@@ -9,6 +9,7 @@ import {
   type TradeActionState,
 } from "@/lib/actions/trade";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,6 +17,14 @@ import { ImageUploader } from "@/components/ui/image-uploader";
 import { cn } from "@/lib/utils";
 import { formatInputDate } from "@/lib/format";
 import { INSTRUMENTS, findInstrument } from "@/lib/trading/instruments";
+
+const SESSION_OPTIONS = [
+  { value: "", label: "Auto" },
+  { value: "London", label: "London" },
+  { value: "New York", label: "New York" },
+  { value: "Asia", label: "Asia" },
+  { value: "Out Of Session", label: "Out" },
+];
 
 type TradeFormProps =
   | { mode: "create" }
@@ -48,10 +57,6 @@ function formatDateTimeLocal(d: Date): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-const selectCn = cn(
-  "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
-);
-
 export function TradeForm(props: TradeFormProps) {
   const action = props.mode === "create" ? createTrade : updateTrade;
   const [state, formAction, pending] = useActionState(action, initialState);
@@ -64,6 +69,9 @@ export function TradeForm(props: TradeFormProps) {
   const [instrument, setInstrument] = useState(initialInstrument);
   const [direction, setDirection] = useState<"LONG" | "SHORT">(
     props.mode === "edit" ? props.trade.direction : "LONG",
+  );
+  const [session, setSession] = useState(
+    props.mode === "edit" ? (props.trade.session ?? "") : "",
   );
 
   const activePointValue = findInstrument(instrument)?.pointValue ?? 1;
@@ -178,32 +186,36 @@ export function TradeForm(props: TradeFormProps) {
         </div>
       </div>
 
+      <input type="hidden" name="session" value={session} />
+
+      <div className="space-y-2">
+        <Label>Session</Label>
+        <div className="flex flex-wrap gap-2">
+          {SESSION_OPTIONS.map((option) => {
+            const active = option.value === session;
+            return (
+              <button
+                key={option.value || "auto"}
+                type="button"
+                onClick={() => setSession(option.value)}
+                className={cn(
+                  "rounded-md border px-3 py-2 text-sm font-medium transition-colors",
+                  active
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-input bg-transparent hover:bg-accent hover:text-accent-foreground",
+                )}
+              >
+                {option.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="session">Session</Label>
-          <select
-            id="session"
-            name="session"
-            defaultValue={defaults.session}
-            className={selectCn}
-          >
-            <option value="">Auto-detect / none</option>
-            <option value="London">London</option>
-            <option value="New York">New York</option>
-            <option value="Asia">Asia</option>
-            <option value="Out Of Session">Out Of Session</option>
-          </select>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="date">Trade date</Label>
-          <Input
-            id="date"
-            name="date"
-            type="date"
-            required
-            defaultValue={defaults.date}
-          />
+          <Label>Trade date</Label>
+          <DatePicker name="date" defaultValue={defaults.date} />
         </div>
 
         <div className="space-y-2">

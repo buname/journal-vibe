@@ -27,9 +27,14 @@ export function SessionRadarChart({ data }: SessionRadarChartProps) {
     );
   }
 
+  const shortLabel: Record<string, string> = {
+    "New York": "NY",
+    "Out Of Session": "Out",
+  };
+
   const maxPnl = Math.max(...data.map((d) => Math.abs(d.pnl)), 1);
   const chartData = data.map((d) => ({
-    session: d.session,
+    session: shortLabel[d.session] ?? d.session,
     trades: d.trades,
     winRate: d.winRate,
     pnlMagnitude: Math.round((Math.abs(d.pnl) / maxPnl) * 100),
@@ -38,7 +43,13 @@ export function SessionRadarChart({ data }: SessionRadarChartProps) {
   return (
     <div className="h-72 w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <RadarChart data={chartData} cx="50%" cy="50%" outerRadius="70%">
+        <RadarChart
+          data={chartData}
+          cx="50%"
+          cy="50%"
+          outerRadius="62%"
+          margin={{ top: 16, right: 24, bottom: 16, left: 24 }}
+        >
           <PolarGrid className="stroke-border" />
           <PolarAngleAxis
             dataKey="session"
