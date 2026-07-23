@@ -80,9 +80,22 @@ export default async function TradeEntryPage({ params }: TradeEntryPageProps) {
       <div className="rounded-xl border border-border/70 bg-card p-5">
         <div className="grid grid-cols-2 gap-5 sm:grid-cols-3">
           <Detail label="PnL" value={<PnlBadge pnl={trade.pnl} />} />
+          <Detail
+            label="R multiple"
+            value={trade.rValue != null ? `${trade.rValue.toFixed(2)}R` : "—"}
+          />
+          <Detail label="Instrument" value={trade.instrumentType ?? "—"} />
           <Detail label="Entry" value={trade.entryPrice} />
           <Detail label="Exit" value={trade.exitPrice} />
+          <Detail
+            label="Stop"
+            value={trade.stopPrice != null ? trade.stopPrice : "—"}
+          />
           <Detail label="Size" value={trade.size} />
+          <Detail
+            label="Point value"
+            value={trade.pointValue != null ? `$${trade.pointValue}` : "—"}
+          />
           <Detail label="Fees" value={trade.fees} />
           <Detail label="Session" value={trade.session ?? "—"} />
         </div>

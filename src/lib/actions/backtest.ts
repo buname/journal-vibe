@@ -15,6 +15,10 @@ function formBacktestPayload(formData: FormData) {
   return {
     strategy: String(formData.get("strategy") ?? ""),
     timeframe: String(formData.get("timeframe") ?? ""),
+    direction: String(formData.get("direction") ?? ""),
+    instrumentType: String(formData.get("instrumentType") ?? ""),
+    entryPrice: String(formData.get("entryPrice") ?? ""),
+    stopPrice: String(formData.get("stopPrice") ?? ""),
     winningTrades: String(formData.get("winningTrades") ?? ""),
     totalTrades: String(formData.get("totalTrades") ?? ""),
     expectancy: String(formData.get("expectancy") ?? ""),
@@ -59,6 +63,10 @@ export async function createBacktest(
       userId: session.user.id,
       strategy: parsed.data.strategy,
       timeframe: parsed.data.timeframe,
+      direction: parsed.data.direction,
+      instrumentType: parsed.data.instrumentType,
+      entryPrice: parsed.data.entryPrice,
+      stopPrice: parsed.data.stopPrice,
       winRate: calculateBacktestWinRate(
         parsed.data.winningTrades,
         parsed.data.totalTrades,
@@ -108,6 +116,10 @@ export async function updateBacktest(
     data: {
       strategy: parsed.data.strategy,
       timeframe: parsed.data.timeframe,
+      direction: parsed.data.direction,
+      instrumentType: parsed.data.instrumentType,
+      entryPrice: parsed.data.entryPrice,
+      stopPrice: parsed.data.stopPrice,
       winRate: calculateBacktestWinRate(
         parsed.data.winningTrades,
         parsed.data.totalTrades,

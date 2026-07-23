@@ -16,6 +16,20 @@ export const tradeSessionSchema = z.enum([
   "",
 ]);
 
+const optionalNumber = z.preprocess(
+  (value) =>
+    value === "" || value === null || value === undefined ? undefined : value,
+  z.coerce.number().finite().optional(),
+);
+
+const optionalString = z
+  .string()
+  .optional()
+  .transform((value) => {
+    const trimmed = (value ?? "").trim();
+    return trimmed.length > 0 ? trimmed : undefined;
+  });
+
 export const tradeUpsertSchema = z.object({
   symbol: z
     .string()
@@ -24,6 +38,9 @@ export const tradeUpsertSchema = z.object({
     .max(32)
     .transform((value) => value.toUpperCase()),
   direction: tradeDirectionSchema,
+  instrumentType: optionalString,
+  pointValue: optionalNumber,
+  stopPrice: optionalNumber,
   entryPrice: z.coerce.number().finite("Entry price must be a number."),
   exitPrice: z.coerce.number().finite("Exit price must be a number."),
   size: z.coerce.number().positive("Size must be greater than zero."),

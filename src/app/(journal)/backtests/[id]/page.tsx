@@ -80,6 +80,16 @@ export default async function BacktestEntryPage({
           <Detail label="Timeframe" value={note.timeframe} />
           <Detail label="Win rate" value={`${note.winRate.toFixed(1)}%`} />
           <Detail label="Expectancy" value={`${note.expectancy.toFixed(2)}R`} />
+          <Detail label="Direction" value={note.direction ?? "—"} />
+          <Detail label="Instrument" value={note.instrumentType ?? "—"} />
+          <Detail
+            label="Entry / Stop"
+            value={
+              note.entryPrice != null || note.stopPrice != null
+                ? `${note.entryPrice ?? "—"} / ${note.stopPrice ?? "—"}`
+                : "—"
+            }
+          />
         </div>
       </div>
 

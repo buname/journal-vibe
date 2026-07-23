@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 
 import {
   createTrade,
@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { cn } from "@/lib/utils";
 import { formatInputDate } from "@/lib/format";
+import { INSTRUMENTS, findInstrument } from "@/lib/trading/instruments";
 
 type TradeFormProps =
   | { mode: "create" }
@@ -24,8 +25,11 @@ type TradeFormProps =
         id: string;
         symbol: string;
         direction: "LONG" | "SHORT";
+        instrumentType: string | null;
+        pointValue: number | null;
         entryPrice: number;
         exitPrice: number;
+        stopPrice: number | null;
         size: number;
         fees: number;
         session: string | null;
@@ -52,13 +56,43 @@ export function TradeForm(props: TradeFormProps) {
   const action = props.mode === "create" ? createTrade : updateTrade;
   const [state, formAction, pending] = useActionState(action, initialState);
 
+  const editDefaults =
+    props.mode === "edit"
+      ? {
+          symbol: props.trade.symbol,
+          instrumentType: props.trade.instrumentType ?? "",
+          pointValue:
+            props.trade.pointValue != null
+              ? String(props.trade.pointValue)
+              : "",
+        }
+      : { symbol: "", instrumentType: "", pointValue: "" };
+
+  const [instrument, setInstrument] = useState(editDefaults.instrumentType);
+  const [symbol, setSymbol] = useState(editDefaults.symbol);
+  const [pointValue, setPointValue] = useState(editDefaults.pointValue);
+
+  function onInstrumentChange(value: string) {
+    setInstrument(value);
+    const found = findInstrument(value);
+    if (found) {
+      setSymbol(found.symbol);
+      setPointValue(String(found.pointValue));
+    }
+  }
+
   const defaults =
     props.mode === "edit"
       ? {
           symbol: props.trade.symbol,
           direction: props.trade.direction,
+          instrumentType: props.trade.instrumentType ?? "",
+          pointValue:
+            props.trade.pointValue != null ? String(props.trade.pointValue) : "",
           entryPrice: String(props.trade.entryPrice),
           exitPrice: String(props.trade.exitPrice),
+          stopPrice:
+            props.trade.stopPrice != null ? String(props.trade.stopPrice) : "",
           size: String(props.trade.size),
           fees: String(props.trade.fees),
           session: props.trade.session ?? "",
@@ -73,8 +107,11 @@ export function TradeForm(props: TradeFormProps) {
       : {
           symbol: "",
           direction: "LONG" as const,
+          instrumentType: "",
+          pointValue: "",
           entryPrice: "",
           exitPrice: "",
+          stopPrice: "",
           size: "",
           fees: "0",
           session: "",
@@ -98,14 +135,33 @@ export function TradeForm(props: TradeFormProps) {
       ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2 sm:col-span-2">
+        <div className="space-y-2">
+          <Label htmlFor="instrumentType">Instrument</Label>
+          <select
+            id="instrumentType"
+            name="instrumentType"
+            value={instrument}
+            onChange={(event) => onInstrumentChange(event.target.value)}
+            className={selectCn}
+          >
+            <option value="">Custom / other</option>
+            {INSTRUMENTS.map((item) => (
+              <option key={item.symbol} value={item.symbol}>
+                {item.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="space-y-2">
           <Label htmlFor="symbol">Symbol</Label>
           <Input
             id="symbol"
             name="symbol"
             required
             maxLength={32}
-            defaultValue={defaults.symbol}
+            value={symbol}
+            onChange={(event) => setSymbol(event.target.value)}
             placeholder="ES, NQ, BTC…"
             autoCapitalize="characters"
           />
@@ -122,6 +178,20 @@ export function TradeForm(props: TradeFormProps) {
             <option value="LONG">Long</option>
             <option value="SHORT">Short</option>
           </select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="pointValue">Point value ($/pt)</Label>
+          <Input
+            id="pointValue"
+            name="pointValue"
+            type="number"
+            inputMode="decimal"
+            step="any"
+            value={pointValue}
+            onChange={(event) => setPointValue(event.target.value)}
+            placeholder="e.g. 2 for MNQ"
+          />
         </div>
 
         <div className="space-y-2">
@@ -189,7 +259,19 @@ export function TradeForm(props: TradeFormProps) {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="size">Size</Label>
+          <Label htmlFor="stopPrice">Stop</Label>
+          <Input
+            id="stopPrice"
+            name="stopPrice"
+            type="number"
+            inputMode="decimal"
+            step="any"
+            defaultValue={defaults.stopPrice}
+            placeholder="Optional — enables R multiple"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="size">Size (contracts)</Label>
           <Input
             id="size"
             name="size"
@@ -217,9 +299,9 @@ export function TradeForm(props: TradeFormProps) {
       <p className="text-xs text-muted-foreground">
         PnL is computed on save as{" "}
         <span className="font-medium text-foreground">
-          (exit − entry) × size − fees
+          (exit − entry) × point value × size − fees
         </span>{" "}
-        for longs, and the inverse for shorts.
+        for longs (inverse for shorts). Set a stop to record the R multiple.
       </p>
 
       <div className="space-y-2">

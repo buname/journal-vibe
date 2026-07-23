@@ -5,7 +5,8 @@ import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
-import { computeTradePnL } from "@/lib/trading/compute-pnl";
+import { computeRValue, computeTradePnL } from "@/lib/trading/compute-pnl";
+import { resolvePointValue } from "@/lib/trading/instruments";
 import { detectSession } from "@/lib/utils/tradingCalculations";
 import { tradeUpsertSchema } from "@/lib/validations/trade";
 
@@ -17,6 +18,9 @@ function formTradePayload(formData: FormData) {
   return {
     symbol: String(formData.get("symbol") ?? ""),
     direction: String(formData.get("direction") ?? ""),
+    instrumentType: String(formData.get("instrumentType") ?? ""),
+    pointValue: String(formData.get("pointValue") ?? ""),
+    stopPrice: String(formData.get("stopPrice") ?? ""),
     entryPrice: String(formData.get("entryPrice") ?? ""),
     exitPrice: String(formData.get("exitPrice") ?? ""),
     size: String(formData.get("size") ?? ""),
@@ -62,7 +66,12 @@ export async function createTrade(
     return { status: "error", message };
   }
 
-  const pnl = computeTradePnL(parsed.data);
+  const resolvedPointValue = resolvePointValue(
+    parsed.data.instrumentType,
+    parsed.data.pointValue,
+  );
+  const pnl = computeTradePnL({ ...parsed.data, pointValue: resolvedPointValue });
+  const rValue = computeRValue(parsed.data);
   const resolvedSession = resolveSession(
     parsed.data.session,
     parsed.data.entryTime,
@@ -73,8 +82,12 @@ export async function createTrade(
       userId: session.user.id,
       symbol: parsed.data.symbol,
       direction: parsed.data.direction,
+      instrumentType: parsed.data.instrumentType,
+      pointValue: resolvedPointValue,
       entryPrice: parsed.data.entryPrice,
       exitPrice: parsed.data.exitPrice,
+      stopPrice: parsed.data.stopPrice,
+      rValue,
       size: parsed.data.size,
       fees: parsed.data.fees,
       pnl,
@@ -121,7 +134,12 @@ export async function updateTrade(
     return { status: "error", message: "Trade not found." };
   }
 
-  const pnl = computeTradePnL(parsed.data);
+  const resolvedPointValue = resolvePointValue(
+    parsed.data.instrumentType,
+    parsed.data.pointValue,
+  );
+  const pnl = computeTradePnL({ ...parsed.data, pointValue: resolvedPointValue });
+  const rValue = computeRValue(parsed.data);
   const resolvedSession = resolveSession(
     parsed.data.session,
     parsed.data.entryTime,
@@ -132,8 +150,12 @@ export async function updateTrade(
     data: {
       symbol: parsed.data.symbol,
       direction: parsed.data.direction,
+      instrumentType: parsed.data.instrumentType,
+      pointValue: resolvedPointValue,
       entryPrice: parsed.data.entryPrice,
       exitPrice: parsed.data.exitPrice,
+      stopPrice: parsed.data.stopPrice,
+      rValue,
       size: parsed.data.size,
       fees: parsed.data.fees,
       pnl,

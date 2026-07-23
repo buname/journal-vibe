@@ -13,7 +13,13 @@ import { ImageUploader } from "@/components/ui/image-uploader";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import { formatInputDate } from "@/lib/format";
+import { INSTRUMENTS } from "@/lib/trading/instruments";
+
+const selectCn = cn(
+  "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+);
 
 type BacktestFormProps =
   | { mode: "create" }
@@ -23,6 +29,10 @@ type BacktestFormProps =
         id: string;
         strategy: string;
         timeframe: string;
+        direction: string | null;
+        instrumentType: string | null;
+        entryPrice: number | null;
+        stopPrice: number | null;
         winRate: number;
         expectancy: number;
         notes: string | null;
@@ -43,6 +53,16 @@ export function BacktestForm(props: BacktestFormProps) {
       ? {
           strategy: props.backtest.strategy,
           timeframe: props.backtest.timeframe,
+          direction: props.backtest.direction ?? "",
+          instrumentType: props.backtest.instrumentType ?? "",
+          entryPrice:
+            props.backtest.entryPrice != null
+              ? String(props.backtest.entryPrice)
+              : "",
+          stopPrice:
+            props.backtest.stopPrice != null
+              ? String(props.backtest.stopPrice)
+              : "",
           winningTrades: String(Math.round(props.backtest.winRate)),
           totalTrades: "100",
           expectancy: String(props.backtest.expectancy),
@@ -54,6 +74,10 @@ export function BacktestForm(props: BacktestFormProps) {
       : {
           strategy: "",
           timeframe: "",
+          direction: "",
+          instrumentType: "",
+          entryPrice: "",
+          stopPrice: "",
           winningTrades: "",
           totalTrades: "",
           expectancy: "",
@@ -110,6 +134,59 @@ export function BacktestForm(props: BacktestFormProps) {
             maxLength={64}
             defaultValue={defaults.timeframe}
             placeholder="5m, 1h, daily…"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="direction">Direction</Label>
+          <select
+            id="direction"
+            name="direction"
+            defaultValue={defaults.direction}
+            className={selectCn}
+          >
+            <option value="">Both / n/a</option>
+            <option value="LONG">Long</option>
+            <option value="SHORT">Short</option>
+          </select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="instrumentType">Instrument</Label>
+          <select
+            id="instrumentType"
+            name="instrumentType"
+            defaultValue={defaults.instrumentType}
+            className={selectCn}
+          >
+            <option value="">Custom / other</option>
+            {INSTRUMENTS.map((item) => (
+              <option key={item.symbol} value={item.symbol}>
+                {item.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="entryPrice">Entry</Label>
+          <Input
+            id="entryPrice"
+            name="entryPrice"
+            type="number"
+            inputMode="decimal"
+            step="any"
+            defaultValue={defaults.entryPrice}
+            placeholder="Optional"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="stopPrice">Stop</Label>
+          <Input
+            id="stopPrice"
+            name="stopPrice"
+            type="number"
+            inputMode="decimal"
+            step="any"
+            defaultValue={defaults.stopPrice}
+            placeholder="Optional"
           />
         </div>
         <div className="space-y-2">
