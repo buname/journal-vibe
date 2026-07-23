@@ -100,6 +100,7 @@ export default async function TradesPage() {
                   <TableHead>Symbol</TableHead>
                   <TableHead>Dir</TableHead>
                   <TableHead className="text-right">PnL</TableHead>
+                  <TableHead> </TableHead>
                   <TableHead className="text-right"> </TableHead>
                 </TableRow>
               </TableHeader>

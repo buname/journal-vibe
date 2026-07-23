@@ -56,30 +56,17 @@ export function TradeForm(props: TradeFormProps) {
   const action = props.mode === "create" ? createTrade : updateTrade;
   const [state, formAction, pending] = useActionState(action, initialState);
 
-  const editDefaults =
-    props.mode === "edit"
-      ? {
-          symbol: props.trade.symbol,
-          instrumentType: props.trade.instrumentType ?? "",
-          pointValue:
-            props.trade.pointValue != null
-              ? String(props.trade.pointValue)
-              : "",
-        }
-      : { symbol: "", instrumentType: "", pointValue: "" };
+  const initialInstrument =
+    props.mode === "edit" && findInstrument(props.trade.instrumentType)
+      ? (props.trade.instrumentType as string)
+      : INSTRUMENTS[0].symbol;
 
-  const [instrument, setInstrument] = useState(editDefaults.instrumentType);
-  const [symbol, setSymbol] = useState(editDefaults.symbol);
-  const [pointValue, setPointValue] = useState(editDefaults.pointValue);
+  const [instrument, setInstrument] = useState(initialInstrument);
+  const [direction, setDirection] = useState<"LONG" | "SHORT">(
+    props.mode === "edit" ? props.trade.direction : "LONG",
+  );
 
-  function onInstrumentChange(value: string) {
-    setInstrument(value);
-    const found = findInstrument(value);
-    if (found) {
-      setSymbol(found.symbol);
-      setPointValue(String(found.pointValue));
-    }
-  }
+  const activePointValue = findInstrument(instrument)?.pointValue ?? 1;
 
   const defaults =
     props.mode === "edit"
@@ -134,66 +121,64 @@ export function TradeForm(props: TradeFormProps) {
         </p>
       ) : null}
 
+      <input type="hidden" name="symbol" value={instrument} />
+      <input type="hidden" name="instrumentType" value={instrument} />
+      <input type="hidden" name="direction" value={direction} />
+
+      <div className="space-y-2">
+        <Label>Instrument</Label>
+        <div className="flex gap-2">
+          {INSTRUMENTS.map((item) => {
+            const active = item.symbol === instrument;
+            return (
+              <button
+                key={item.symbol}
+                type="button"
+                onClick={() => setInstrument(item.symbol)}
+                className={cn(
+                  "flex-1 rounded-md border px-3 py-2 text-sm font-semibold transition-colors",
+                  active
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-input bg-transparent hover:bg-accent hover:text-accent-foreground",
+                )}
+              >
+                {item.symbol}
+              </button>
+            );
+          })}
+        </div>
+        <p className="text-xs text-muted-foreground">
+          ${activePointValue} per point · PnL is calculated automatically.
+        </p>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Direction</Label>
+        <div className="flex gap-2">
+          {(["LONG", "SHORT"] as const).map((dir) => {
+            const active = dir === direction;
+            return (
+              <button
+                key={dir}
+                type="button"
+                onClick={() => setDirection(dir)}
+                className={cn(
+                  "flex-1 rounded-md border px-3 py-2 text-sm font-semibold transition-colors",
+                  active
+                    ? dir === "LONG"
+                      ? "border-emerald-500 bg-emerald-500 text-white"
+                      : "border-rose-500 bg-rose-500 text-white"
+                    : "border-input bg-transparent hover:bg-accent hover:text-accent-foreground",
+                )}
+              >
+                {dir === "LONG" ? "Long" : "Short"}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="instrumentType">Instrument</Label>
-          <select
-            id="instrumentType"
-            name="instrumentType"
-            value={instrument}
-            onChange={(event) => onInstrumentChange(event.target.value)}
-            className={selectCn}
-          >
-            <option value="">Custom / other</option>
-            {INSTRUMENTS.map((item) => (
-              <option key={item.symbol} value={item.symbol}>
-                {item.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="symbol">Symbol</Label>
-          <Input
-            id="symbol"
-            name="symbol"
-            required
-            maxLength={32}
-            value={symbol}
-            onChange={(event) => setSymbol(event.target.value)}
-            placeholder="ES, NQ, BTC…"
-            autoCapitalize="characters"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="direction">Direction</Label>
-          <select
-            id="direction"
-            name="direction"
-            defaultValue={defaults.direction}
-            className={selectCn}
-          >
-            <option value="LONG">Long</option>
-            <option value="SHORT">Short</option>
-          </select>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="pointValue">Point value ($/pt)</Label>
-          <Input
-            id="pointValue"
-            name="pointValue"
-            type="number"
-            inputMode="decimal"
-            step="any"
-            value={pointValue}
-            onChange={(event) => setPointValue(event.target.value)}
-            placeholder="e.g. 2 for MNQ"
-          />
-        </div>
-
         <div className="space-y-2">
           <Label htmlFor="session">Session</Label>
           <select
@@ -282,24 +267,12 @@ export function TradeForm(props: TradeFormProps) {
             defaultValue={defaults.size}
           />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="fees">Fees</Label>
-          <Input
-            id="fees"
-            name="fees"
-            type="number"
-            inputMode="decimal"
-            step="any"
-            required
-            defaultValue={defaults.fees}
-          />
-        </div>
       </div>
 
       <p className="text-xs text-muted-foreground">
         PnL is computed on save as{" "}
         <span className="font-medium text-foreground">
-          (exit − entry) × point value × size − fees
+          (exit − entry) × ${activePointValue} × contracts
         </span>{" "}
         for longs (inverse for shorts). Set a stop to record the R multiple.
       </p>

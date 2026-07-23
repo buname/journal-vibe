@@ -36,24 +36,22 @@ export function TradeRow({ trade }: TradeRowProps) {
       <TableCell className="whitespace-nowrap text-muted-foreground">
         {formatListDate(trade.date)}
       </TableCell>
-      <TableCell className="font-medium">
-        <div className="flex items-center gap-2">
-          {trade.images.length > 0 ? (
-            <div className="h-8 w-12 shrink-0 overflow-hidden rounded border border-border/60 bg-muted/30">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={trade.images[0]}
-                alt=""
-                className="h-full w-full object-cover"
-              />
-            </div>
-          ) : null}
-          <span>{trade.symbol}</span>
-        </div>
-      </TableCell>
+      <TableCell className="font-medium">{trade.symbol}</TableCell>
       <TableCell className="text-muted-foreground">{trade.direction}</TableCell>
       <TableCell className="text-right">
         <PnlBadge pnl={trade.pnl} />
+      </TableCell>
+      <TableCell>
+        {trade.images.length > 0 ? (
+          <div className="ml-4 h-9 w-14 overflow-hidden rounded border border-border/60 bg-muted/30">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={trade.images[0]}
+              alt=""
+              className="h-full w-full object-cover"
+            />
+          </div>
+        ) : null}
       </TableCell>
       <TableCell
         className="text-right"

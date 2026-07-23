@@ -44,7 +44,10 @@ export const tradeUpsertSchema = z.object({
   entryPrice: z.coerce.number().finite("Entry price must be a number."),
   exitPrice: z.coerce.number().finite("Exit price must be a number."),
   size: z.coerce.number().positive("Size must be greater than zero."),
-  fees: z.coerce.number().min(0, "Fees cannot be negative."),
+  fees: z.preprocess(
+    (value) => (value === "" || value === null || value === undefined ? 0 : value),
+    z.coerce.number().min(0, "Fees cannot be negative."),
+  ),
   session: tradeSessionSchema.transform((v) => (v === "" ? undefined : v)),
   entryTime: z
     .string()

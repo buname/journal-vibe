@@ -96,7 +96,6 @@ export default async function TradeEntryPage({ params }: TradeEntryPageProps) {
             label="Point value"
             value={trade.pointValue != null ? `$${trade.pointValue}` : "—"}
           />
-          <Detail label="Fees" value={trade.fees} />
           <Detail label="Session" value={trade.session ?? "—"} />
         </div>
       </div>

@@ -15,11 +15,15 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { formatInputDate } from "@/lib/format";
-import { INSTRUMENTS } from "@/lib/trading/instruments";
+import { INSTRUMENTS, findInstrument } from "@/lib/trading/instruments";
 
-const selectCn = cn(
-  "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
-);
+const segClass = (active: boolean) =>
+  cn(
+    "flex-1 rounded-md border px-3 py-2 text-sm font-semibold transition-colors",
+    active
+      ? "border-primary bg-primary text-primary-foreground"
+      : "border-input bg-transparent hover:bg-accent hover:text-accent-foreground",
+  );
 
 type BacktestFormProps =
   | { mode: "create" }
@@ -88,6 +92,10 @@ export function BacktestForm(props: BacktestFormProps) {
         };
   const [winningTrades, setWinningTrades] = useState(defaults.winningTrades);
   const [totalTrades, setTotalTrades] = useState(defaults.totalTrades);
+  const [direction, setDirection] = useState(defaults.direction);
+  const [instrument, setInstrument] = useState(
+    findInstrument(defaults.instrumentType) ? defaults.instrumentType : "",
+  );
 
   const computedWinRate = useMemo(() => {
     const wins = Number(winningTrades);
@@ -136,34 +144,48 @@ export function BacktestForm(props: BacktestFormProps) {
             placeholder="5m, 1h, daily…"
           />
         </div>
+        <input type="hidden" name="direction" value={direction} />
+        <input type="hidden" name="instrumentType" value={instrument} />
         <div className="space-y-2">
-          <Label htmlFor="direction">Direction</Label>
-          <select
-            id="direction"
-            name="direction"
-            defaultValue={defaults.direction}
-            className={selectCn}
-          >
-            <option value="">Both / n/a</option>
-            <option value="LONG">Long</option>
-            <option value="SHORT">Short</option>
-          </select>
+          <Label>Direction</Label>
+          <div className="flex gap-2">
+            {[
+              { value: "", label: "Both" },
+              { value: "LONG", label: "Long" },
+              { value: "SHORT", label: "Short" },
+            ].map((option) => (
+              <button
+                key={option.value || "both"}
+                type="button"
+                onClick={() => setDirection(option.value)}
+                className={segClass(option.value === direction)}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="instrumentType">Instrument</Label>
-          <select
-            id="instrumentType"
-            name="instrumentType"
-            defaultValue={defaults.instrumentType}
-            className={selectCn}
-          >
-            <option value="">Custom / other</option>
+          <Label>Instrument</Label>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setInstrument("")}
+              className={segClass(instrument === "")}
+            >
+              None
+            </button>
             {INSTRUMENTS.map((item) => (
-              <option key={item.symbol} value={item.symbol}>
-                {item.label}
-              </option>
+              <button
+                key={item.symbol}
+                type="button"
+                onClick={() => setInstrument(item.symbol)}
+                className={segClass(item.symbol === instrument)}
+              >
+                {item.symbol}
+              </button>
             ))}
-          </select>
+          </div>
         </div>
         <div className="space-y-2">
           <Label htmlFor="entryPrice">Entry</Label>
