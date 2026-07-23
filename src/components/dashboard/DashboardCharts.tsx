@@ -38,7 +38,10 @@ const SessionRadarChart = dynamic(
     import("@/components/charts/SessionRadarChart").then(
       (m) => m.SessionRadarChart,
     ),
-  { ssr: false, loading: () => <Skeleton className="h-72 w-full rounded-lg" /> },
+  {
+    ssr: false,
+    loading: () => <Skeleton className="h-[26rem] w-full rounded-lg" />,
+  },
 );
 
 const PerformanceCalendar = dynamic(

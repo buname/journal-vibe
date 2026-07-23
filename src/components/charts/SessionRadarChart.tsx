@@ -41,19 +41,19 @@ export function SessionRadarChart({ data }: SessionRadarChartProps) {
   }));
 
   return (
-    <div className="h-72 w-full">
+    <div className="h-[26rem] w-full">
       <ResponsiveContainer width="100%" height="100%">
         <RadarChart
           data={chartData}
           cx="50%"
           cy="50%"
-          outerRadius="62%"
-          margin={{ top: 16, right: 24, bottom: 16, left: 24 }}
+          outerRadius="80%"
+          margin={{ top: 24, right: 40, bottom: 24, left: 40 }}
         >
           <PolarGrid className="stroke-border" />
           <PolarAngleAxis
             dataKey="session"
-            tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+            tick={{ fontSize: 13, fill: "hsl(var(--muted-foreground))" }}
           />
           <PolarRadiusAxis angle={30} domain={[0, "auto"]} tick={false} />
           <Tooltip
@@ -71,21 +71,24 @@ export function SessionRadarChart({ data }: SessionRadarChartProps) {
             dataKey="trades"
             stroke="#8b5cf6"
             fill="#8b5cf6"
-            fillOpacity={0.15}
+            fillOpacity={0.25}
+            strokeWidth={2}
           />
           <Radar
             name="Win Rate"
             dataKey="winRate"
             stroke="#10b981"
             fill="#10b981"
-            fillOpacity={0.15}
+            fillOpacity={0.2}
+            strokeWidth={2}
           />
           <Radar
             name="PnL Magnitude"
             dataKey="pnlMagnitude"
             stroke="#3b82f6"
             fill="#3b82f6"
-            fillOpacity={0.15}
+            fillOpacity={0.2}
+            strokeWidth={2}
           />
         </RadarChart>
       </ResponsiveContainer>

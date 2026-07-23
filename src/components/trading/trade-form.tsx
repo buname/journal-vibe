@@ -19,7 +19,6 @@ import { formatInputDate } from "@/lib/format";
 import { INSTRUMENTS, findInstrument } from "@/lib/trading/instruments";
 
 const SESSION_OPTIONS = [
-  { value: "", label: "Auto" },
   { value: "London", label: "London" },
   { value: "New York", label: "New York" },
   { value: "Asia", label: "Asia" },
