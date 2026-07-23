@@ -41,7 +41,7 @@ export function TradePnlChart({ data }: TradePnlChartProps) {
             width={48}
           />
           <Tooltip
-            cursor={{ fill: "hsl(var(--muted))", opacity: 0.35 }}
+            cursor={{ fill: "hsl(var(--muted-foreground))", fillOpacity: 0.12 }}
             formatter={(value) => [
               typeof value === "number" ? value.toFixed(2) : String(value),
               "PnL",
@@ -53,6 +53,8 @@ export function TradePnlChart({ data }: TradePnlChartProps) {
               background: "hsl(var(--popover))",
               color: "hsl(var(--popover-foreground))",
             }}
+            labelStyle={{ color: "hsl(var(--popover-foreground))" }}
+            itemStyle={{ color: "hsl(var(--popover-foreground))" }}
           />
           <Bar
             dataKey="pnl"

@@ -46,12 +46,15 @@ export function DailyPerformanceChart({ data }: DailyPerformanceChartProps) {
             width={48}
           />
           <Tooltip
+            cursor={{ fill: "hsl(var(--muted-foreground))", fillOpacity: 0.12 }}
             contentStyle={{
               borderRadius: 8,
               borderColor: "hsl(var(--border))",
               background: "hsl(var(--popover))",
               color: "hsl(var(--popover-foreground))",
             }}
+            labelStyle={{ color: "hsl(var(--popover-foreground))" }}
+            itemStyle={{ color: "hsl(var(--popover-foreground))" }}
             formatter={(value) => [
               typeof value === "number" ? `$${value.toFixed(2)}` : String(value),
               "PnL",

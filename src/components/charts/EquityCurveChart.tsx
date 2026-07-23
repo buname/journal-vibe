@@ -57,12 +57,15 @@ export function EquityCurveChart({ data }: EquityCurveChartProps) {
             width={56}
           />
           <Tooltip
+            cursor={{ stroke: "hsl(var(--muted-foreground))", strokeOpacity: 0.3 }}
             contentStyle={{
               borderRadius: 8,
               borderColor: "hsl(var(--border))",
               background: "hsl(var(--popover))",
               color: "hsl(var(--popover-foreground))",
             }}
+            labelStyle={{ color: "hsl(var(--popover-foreground))" }}
+            itemStyle={{ color: "hsl(var(--popover-foreground))" }}
             formatter={(value) => [
               typeof value === "number" ? `$${value.toFixed(2)}` : String(value),
               "Cumulative PnL",

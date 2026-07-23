@@ -52,6 +52,8 @@ export function SessionRadarChart({ data }: SessionRadarChartProps) {
               background: "hsl(var(--popover))",
               color: "hsl(var(--popover-foreground))",
             }}
+            labelStyle={{ color: "hsl(var(--popover-foreground))" }}
+            itemStyle={{ color: "hsl(var(--popover-foreground))" }}
           />
           <Radar
             name="Trades"
