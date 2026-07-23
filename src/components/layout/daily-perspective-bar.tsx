@@ -16,8 +16,10 @@ export function DailyPerspectiveBar() {
           <span className="block text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground sm:text-[11px] sm:tracking-[0.2em]">
             Perspective
           </span>
-          <p className="min-w-0 font-sans text-sm font-bold leading-snug tracking-tight text-foreground antialiased sm:text-base">
-            {PERSPECTIVE_LINE}
+          <p className="min-w-0 font-sans text-lg font-extrabold leading-snug tracking-tight antialiased sm:text-xl">
+            <span className="animate-pulse-glow text-white">
+              {PERSPECTIVE_LINE}
+            </span>
           </p>
         </div>
       </div>

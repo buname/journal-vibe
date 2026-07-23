@@ -55,6 +55,12 @@ export type EquityCurvePoint = {
   cumulativePnL: number;
 };
 
+export type RDistributionRow = {
+  bucket: string;
+  count: number;
+  index: number;
+};
+
 // ---------------------------------------------------------------------------
 // Session detection
 // ---------------------------------------------------------------------------
@@ -276,6 +282,35 @@ export function generateCalendarData(
 // ---------------------------------------------------------------------------
 // Equity curve
 // ---------------------------------------------------------------------------
+
+export function calculateRDistribution(
+  trades: { rValue: number | null }[],
+): RDistributionRow[] {
+  const MIN = -3;
+  const MAX = 4;
+  const counts = new Map<number, number>();
+  for (let i = MIN; i <= MAX; i += 1) counts.set(i, 0);
+
+  for (const t of trades) {
+    if (t.rValue == null || !Number.isFinite(t.rValue)) continue;
+    let r = Math.round(t.rValue);
+    if (r < MIN) r = MIN;
+    if (r > MAX) r = MAX;
+    counts.set(r, (counts.get(r) ?? 0) + 1);
+  }
+
+  const rows: RDistributionRow[] = [];
+  for (let i = MIN; i <= MAX; i += 1) {
+    const label =
+      i === MIN
+        ? `≤${MIN}R`
+        : i === MAX
+          ? `≥+${MAX}R`
+          : `${i > 0 ? "+" : ""}${i}R`;
+    rows.push({ bucket: label, count: counts.get(i) ?? 0, index: i });
+  }
+  return rows;
+}
 
 export function generateEquityCurve(trades: TradeLike[]): EquityCurvePoint[] {
   const sorted = [...trades].sort(

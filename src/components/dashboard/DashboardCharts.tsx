@@ -3,8 +3,8 @@
 import dynamic from "next/dynamic";
 
 import type {
-  DailyPerformanceRow,
   EquityCurvePoint,
+  RDistributionRow,
   SessionPerformanceRow,
   CalendarDayData,
 } from "@/lib/utils/tradingCalculations";
@@ -25,11 +25,9 @@ const EquityCurveChart = dynamic(
   { ssr: false, loading: () => <Skeleton className="h-72 w-full rounded-lg" /> },
 );
 
-const DailyPerformanceChart = dynamic(
+const RMultipleChart = dynamic(
   () =>
-    import("@/components/charts/DailyPerformanceChart").then(
-      (m) => m.DailyPerformanceChart,
-    ),
+    import("@/components/charts/RMultipleChart").then((m) => m.RMultipleChart),
   { ssr: false, loading: () => <Skeleton className="h-64 w-full rounded-lg" /> },
 );
 
@@ -54,14 +52,14 @@ const PerformanceCalendar = dynamic(
 
 type DashboardChartsProps = {
   equityCurve: EquityCurvePoint[];
-  dailyPerformance: DailyPerformanceRow[];
+  rDistribution: RDistributionRow[];
   sessionPerformance: SessionPerformanceRow[];
   calendarData: Record<string, CalendarDayData>;
 };
 
 export function DashboardCharts({
   equityCurve,
-  dailyPerformance,
+  rDistribution,
   sessionPerformance,
   calendarData,
 }: DashboardChartsProps) {
@@ -97,13 +95,13 @@ export function DashboardCharts({
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Day-of-week PnL</CardTitle>
+            <CardTitle>R-multiple distribution</CardTitle>
             <CardDescription>
-              Aggregate PnL by day (Sun – Sat). Green = profit, red = loss.
+              How many trades landed at each R. Green = winners, red = losers.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <DailyPerformanceChart data={dailyPerformance} />
+            <RMultipleChart data={rDistribution} />
           </CardContent>
         </Card>
         <Card>

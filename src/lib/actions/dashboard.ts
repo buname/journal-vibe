@@ -6,6 +6,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import {
   calculateDailyPerformance,
+  calculateRDistribution,
   calculateSessionPerformance,
   calculateTradingMetrics,
   detectSession,
@@ -13,6 +14,7 @@ import {
   generateEquityCurve,
   type DailyPerformanceRow,
   type EquityCurvePoint,
+  type RDistributionRow,
   type SessionPerformanceRow,
   type TradingMetrics,
   type CalendarDayData,
@@ -22,6 +24,7 @@ export type DashboardData = {
   metrics: TradingMetrics;
   sessionPerformance: SessionPerformanceRow[];
   dailyPerformance: DailyPerformanceRow[];
+  rDistribution: RDistributionRow[];
   calendarData: Record<string, CalendarDayData>;
   equityCurve: EquityCurvePoint[];
   journalCount: number;
@@ -53,6 +56,7 @@ export async function getDashboardData(
         pnl: true,
         date: true,
         session: true,
+        rValue: true,
       },
     }),
     prisma.dailyJournal.count({ where: { userId } }),
@@ -62,6 +66,7 @@ export async function getDashboardData(
   const metrics = calculateTradingMetrics(trades);
   const sessionPerformance = calculateSessionPerformance(trades);
   const dailyPerformance = calculateDailyPerformance(trades);
+  const rDistribution = calculateRDistribution(trades);
   const calendarData = generateCalendarData(trades);
   const equityCurve = generateEquityCurve(trades);
 
@@ -69,6 +74,7 @@ export async function getDashboardData(
     metrics,
     sessionPerformance,
     dailyPerformance,
+    rDistribution,
     calendarData,
     equityCurve,
     journalCount,

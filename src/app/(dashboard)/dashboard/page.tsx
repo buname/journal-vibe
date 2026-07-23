@@ -141,7 +141,7 @@ export default async function DashboardPage({
       >
         <DashboardCharts
           equityCurve={data.equityCurve}
-          dailyPerformance={data.dailyPerformance}
+          rDistribution={data.rDistribution}
           sessionPerformance={data.sessionPerformance}
           calendarData={data.calendarData}
         />
