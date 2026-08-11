@@ -72,11 +72,13 @@ export function EquityCurveChart({ data }: EquityCurveChartProps) {
             ]}
           />
           <Area
-            type="monotone"
+            type="natural"
             dataKey="cumulativePnL"
             stroke="hsl(var(--primary))"
             strokeWidth={2}
             fill="url(#equityFill)"
+            dot={false}
+            activeDot={{ r: 4 }}
           />
         </AreaChart>
       </ResponsiveContainer>
