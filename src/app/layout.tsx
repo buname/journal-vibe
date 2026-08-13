@@ -27,6 +27,10 @@ const sourceSerif = Source_Serif_4({
 export const metadata: Metadata = {
   title: "Trading & Life Journal",
   description: "Personal trading and life notebook",
+  icons: {
+    icon: [{ url: "/favicon.png", type: "image/png" }],
+    apple: [{ url: "/apple-icon.png", type: "image/png" }],
+  },
 };
 
 export default async function RootLayout({
