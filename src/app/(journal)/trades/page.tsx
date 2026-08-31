@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import { PnlBadge } from "@/components/trading/pnl-badge";
+import { TradeLogList } from "@/components/trading/trade-log-list";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,14 +12,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { TradeRow } from "@/components/trading/trade-row";
 import { prisma } from "@/lib/db";
 
 export default async function TradesPage() {
@@ -90,36 +83,29 @@ export default async function TradesPage() {
         <Card>
           <CardHeader>
             <CardTitle>Recent trades</CardTitle>
-            <CardDescription>Newest first.</CardDescription>
+            <CardDescription>
+              The eye icon opens that day’s summary. Open goes to the trade.
+            </CardDescription>
           </CardHeader>
           <CardContent className="px-0 sm:px-6">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Symbol</TableHead>
-                  <TableHead>Dir</TableHead>
-                  <TableHead className="text-right">PnL</TableHead>
-                  <TableHead> </TableHead>
-                  <TableHead className="text-right"> </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {trades.map((trade) => (
-                  <TradeRow
-                    key={trade.id}
-                    trade={{
-                      id: trade.id,
-                      date: trade.date,
-                      symbol: trade.symbol,
-                      direction: trade.direction,
-                      pnl: trade.pnl,
-                      images: trade.images,
-                    }}
-                  />
-                ))}
-              </TableBody>
-            </Table>
+            <TradeLogList
+              trades={trades.map((trade) => ({
+                id: trade.id,
+                symbol: trade.symbol,
+                direction: trade.direction,
+                pnl: trade.pnl,
+                entryPrice: trade.entryPrice,
+                exitPrice: trade.exitPrice,
+                size: trade.size,
+                rValue: trade.rValue,
+                fees: trade.fees,
+                session: trade.session,
+                notes: trade.notes,
+                images: trade.images,
+                date: trade.date.toISOString(),
+                entryTime: trade.entryTime?.toISOString() ?? null,
+              }))}
+            />
           </CardContent>
         </Card>
       )}

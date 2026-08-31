@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import { ChevronLeft, Pencil } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -27,6 +28,13 @@ function Detail({ label, value }: { label: string; value: ReactNode }) {
   );
 }
 
+function price(value: number | null | undefined) {
+  if (value == null) return "—";
+  return new Intl.NumberFormat(undefined, { maximumFractionDigits: 4 }).format(
+    value,
+  );
+}
+
 export default async function TradeEntryPage({ params }: TradeEntryPageProps) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -50,11 +58,8 @@ export default async function TradeEntryPage({ params }: TradeEntryPageProps) {
           <p className="text-xs uppercase tracking-wide text-muted-foreground">
             Trades
           </p>
-          <h1 className="flex items-center gap-3 text-2xl font-semibold tracking-tight">
+          <h1 className="text-2xl font-semibold tracking-tight">
             {trade.symbol}
-            <span className="text-base font-normal text-muted-foreground">
-              {trade.direction}
-            </span>
           </h1>
           <p className="text-sm text-muted-foreground">
             {formatListDate(trade.date)}
@@ -79,24 +84,23 @@ export default async function TradeEntryPage({ params }: TradeEntryPageProps) {
 
       <div className="rounded-xl border border-border/70 bg-card p-5">
         <div className="grid grid-cols-2 gap-5 sm:grid-cols-3">
+          <Detail label="Direction" value={trade.direction} />
           <Detail label="PnL" value={<PnlBadge pnl={trade.pnl} />} />
           <Detail
-            label="R multiple"
+            label="R"
             value={trade.rValue != null ? `${trade.rValue.toFixed(2)}R` : "—"}
           />
-          <Detail label="Instrument" value={trade.instrumentType ?? "—"} />
-          <Detail label="Entry" value={trade.entryPrice} />
-          <Detail label="Exit" value={trade.exitPrice} />
-          <Detail
-            label="Stop"
-            value={trade.stopPrice != null ? trade.stopPrice : "—"}
-          />
-          <Detail label="Size" value={trade.size} />
-          <Detail
-            label="Point value"
-            value={trade.pointValue != null ? `$${trade.pointValue}` : "—"}
-          />
+          <Detail label="Entry" value={price(trade.entryPrice)} />
+          <Detail label="Exit" value={price(trade.exitPrice)} />
+          <Detail label="Stop" value={price(trade.stopPrice)} />
+          <Detail label="Size" value={price(trade.size)} />
           <Detail label="Session" value={trade.session ?? "—"} />
+          <Detail
+            label="Entry time"
+            value={
+              trade.entryTime ? format(trade.entryTime, "MMM d, HH:mm") : "—"
+            }
+          />
         </div>
       </div>
 

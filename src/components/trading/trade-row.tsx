@@ -1,40 +1,26 @@
 "use client";
 
+import { Eye } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 import { PnlBadge } from "@/components/trading/pnl-badge";
+import type { TradeDetailData } from "@/components/trading/trade-detail-card";
 import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { formatListDate } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
 type TradeRowProps = {
-  trade: {
-    id: string;
-    date: Date;
-    symbol: string;
-    direction: string;
-    pnl: number;
-    images: string[];
-  };
+  trade: TradeDetailData;
+  selected?: boolean;
+  onPreview: () => void;
 };
 
-export function TradeRow({ trade }: TradeRowProps) {
-  const router = useRouter();
-  const href = `/trades/${trade.id}`;
-
+export function TradeRow({ trade, selected, onPreview }: TradeRowProps) {
   return (
-    <TableRow
-      onClick={() => router.push(href)}
-      onKeyDown={(event) => {
-        if (event.key === "Enter") router.push(href);
-      }}
-      tabIndex={0}
-      role="link"
-      className="cursor-pointer transition-colors hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:outline-none"
-    >
+    <TableRow className={cn(selected && "bg-muted/60")}>
       <TableCell className="whitespace-nowrap text-muted-foreground">
-        {formatListDate(trade.date)}
+        {formatListDate(new Date(trade.date))}
       </TableCell>
       <TableCell className="font-medium">{trade.symbol}</TableCell>
       <TableCell className="text-muted-foreground">{trade.direction}</TableCell>
@@ -53,13 +39,22 @@ export function TradeRow({ trade }: TradeRowProps) {
           </div>
         ) : null}
       </TableCell>
-      <TableCell
-        className="text-right"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <Button variant="outline" size="sm" asChild>
-          <Link href={href}>Open</Link>
-        </Button>
+      <TableCell className="text-right">
+        <div className="inline-flex items-center justify-end gap-1">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 px-0 text-muted-foreground"
+            aria-label="View day summary"
+            onClick={onPreview}
+          >
+            <Eye />
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link href={`/trades/${trade.id}`}>Open</Link>
+          </Button>
+        </div>
       </TableCell>
     </TableRow>
   );
