@@ -1,8 +1,4 @@
-import {
-  isSameWeek,
-  startOfWeek,
-  subDays,
-} from "date-fns";
+import { isSameWeek, subDays } from "date-fns";
 
 import type { HeatmapDay } from "@/components/ui/activity-heatmap";
 import { toDayKey } from "@/lib/format";
@@ -44,7 +40,6 @@ export function buildJournalHeatmap(
 
 export function computeJournalStats(entries: JournalEntry[]): JournalStats {
   const today = new Date();
-  const weekStart = startOfWeek(today, { weekStartsOn: 1 });
   const daySet = new Set(entries.map((entry) => toDayKey(entry.date)));
 
   let streak = 0;

@@ -22,7 +22,7 @@ interface DockProps {
   items: DockItem[];
 }
 
-interface DockIconButtonProps extends DockItem {}
+type DockIconButtonProps = DockItem;
 
 const floatingAnimation = {
   initial: { y: 0 },
@@ -31,7 +31,7 @@ const floatingAnimation = {
     transition: {
       duration: 4,
       repeat: Infinity,
-      ease: "easeInOut",
+      ease: "easeInOut" as const,
     },
   },
 };

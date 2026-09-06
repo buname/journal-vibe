@@ -5,15 +5,25 @@ import {
   Children,
   cloneElement,
   ReactElement,
+  ReactNode,
   useEffect,
   useState,
   useId,
 } from 'react';
 
+type TabChildProps = {
+  'data-id': string;
+  className?: string;
+  children?: ReactNode;
+  'aria-selected'?: boolean;
+  'data-checked'?: string;
+  onClick?: () => void;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+};
+
 type AnimatedBackgroundProps = {
-  children:
-    | ReactElement<{ 'data-id': string }>[]
-    | ReactElement<{ 'data-id': string }>;
+  children: ReactElement<TabChildProps>[] | ReactElement<TabChildProps>;
   defaultValue?: string;
   onValueChange?: (newActiveId: string | null) => void;
   className?: string;
@@ -46,7 +56,7 @@ export default function AnimatedBackground({
     }
   }, [defaultValue]);
 
-  return Children.map(children, (child: ReactElement<{ 'data-id': string }>, index) => {
+  return Children.map(children, (child: ReactElement<TabChildProps>, index) => {
     const id = child.props['data-id'];
 
     const interactionProps = enableHover

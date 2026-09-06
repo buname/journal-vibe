@@ -356,7 +356,7 @@ export function ActivityHeatmap({
   } as const;
 
   const hoveredDay = hovered ? parseLocalDate(hovered) : null;
-  const hoveredContribution = hovered ? dataByDay.get(hovered) : null;
+  const hoveredContribution = hovered ? dataByDay.get(hovered) : undefined;
   const hoveredColor =
     hoveredContribution && hoveredContribution.count > 0
       ? getColor(hoveredContribution.count, colors)

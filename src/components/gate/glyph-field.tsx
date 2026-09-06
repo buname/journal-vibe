@@ -44,7 +44,7 @@ export function GlyphField({ tone = "ink" }: GlyphFieldProps) {
 
     const pointer = { x: -1, y: -1, on: false };
     let raf = 0;
-    let start = performance.now();
+    const start = performance.now();
 
     const tape = (col: number, row: number) => {
       let s =

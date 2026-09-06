@@ -13,7 +13,8 @@ export interface HeroAction {
   variant?: React.ComponentProps<typeof Button>["variant"];
 }
 
-export interface HeroProps extends React.ComponentPropsWithoutRef<"section"> {
+export interface HeroProps
+  extends Omit<React.ComponentPropsWithoutRef<"section">, "title"> {
   gradient?: boolean;
   blur?: boolean;
   title: React.ReactNode;
