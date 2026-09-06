@@ -38,3 +38,9 @@ prisma/*.db
 prisma/*.db-journal
 
 .vercel
+
+.vercel
+.env*
+
+.env.vercel.check
+.env*.check

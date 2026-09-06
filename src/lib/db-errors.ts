@@ -12,7 +12,9 @@ export function isDbConnectionError(error: unknown): boolean {
   return (
     name.includes("PrismaClientInitializationError") ||
     message.includes("Can't reach database server") ||
-    message.includes("Connection refused")
+    message.includes("Connection refused") ||
+    message.includes("P1001") ||
+    message.includes("P1000")
   );
 }
 
