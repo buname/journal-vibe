@@ -72,7 +72,11 @@ export function UserMenu({ user }: UserMenuProps) {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="cursor-pointer"
-          onClick={() => signOut({ callbackUrl: "/" })}
+          onClick={() => {
+            void signOut({ redirect: false }).then(() => {
+              window.location.assign("/");
+            });
+          }}
         >
           <LogOut className="mr-2 h-4 w-4" />
           Sign out

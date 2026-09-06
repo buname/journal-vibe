@@ -1,6 +1,10 @@
+"use client";
+
 import Link from "next/link";
 
+import AnimatedBackground from "@/components/ui/animated-tabs";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import type { NotebookFilter } from "@/lib/notebook/parse-kind";
 
 const filters: { key: NotebookFilter; label: string }[] = [
@@ -34,19 +38,32 @@ function buildNotebookHref(
 export function NotebookFilters({ active, activeTag, tags }: NotebookFiltersProps) {
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap gap-2">
-        {filters.map((filter) => (
-          <Button
-            key={filter.key}
-            size="sm"
-            variant={active === filter.key ? "default" : "outline"}
-            asChild
-          >
-            <Link href={buildNotebookHref(filter.key, activeTag)}>
+      <div className="inline-flex w-full max-w-xl rounded-xl border border-border/80 bg-muted/30 p-1.5">
+        <AnimatedBackground
+          className="rounded-lg bg-primary shadow-sm"
+          defaultValue={active}
+          transition={{
+            type: "spring",
+            bounce: 0.15,
+            duration: 0.35,
+          }}
+        >
+          {filters.map((filter) => (
+            <Link
+              key={filter.key}
+              data-id={filter.key}
+              href={buildNotebookHref(filter.key, activeTag)}
+              className={cn(
+                "relative z-10 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
+                active === filter.key
+                  ? "text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
               {filter.label}
             </Link>
-          </Button>
-        ))}
+          ))}
+        </AnimatedBackground>
       </div>
 
       {tags.length > 0 ? (
@@ -58,7 +75,11 @@ export function NotebookFilters({ active, activeTag, tags }: NotebookFiltersProp
             <Button
               key={tag}
               size="sm"
-              variant={activeTag?.toLowerCase() === tag.toLowerCase() ? "default" : "outline"}
+              variant={
+                activeTag?.toLowerCase() === tag.toLowerCase()
+                  ? "default"
+                  : "outline"
+              }
               className="h-7 rounded-full px-3 text-xs"
               asChild
             >

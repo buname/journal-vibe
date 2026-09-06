@@ -1,81 +1,105 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
+import type { TradeDetailData } from "@/components/trading/trade-detail-card";
 import {
-  TradeDetailCard,
-  tradesOnSameDay,
-  type TradeDetailData,
-} from "@/components/trading/trade-detail-card";
-import { TradeRow } from "@/components/trading/trade-row";
+  TradeInteractiveCard,
+  TradeListCard,
+} from "@/components/trading/trade-interactive-card";
+import { Button } from "@/components/ui/button";
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import {
-  Table,
-  TableBody,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 
 type TradeLogListProps = {
+  initialOpenTradeId?: string;
+  showSavedBanner?: boolean;
   trades: TradeDetailData[];
 };
 
-export function TradeLogList({ trades }: TradeLogListProps) {
+export function TradeLogList({
+  initialOpenTradeId,
+  showSavedBanner,
+  trades,
+}: TradeLogListProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const active = trades.find((trade) => trade.id === activeId) ?? null;
+  const dialogWide = Boolean(active?.images.length);
+
+  useEffect(() => {
+    if (initialOpenTradeId) {
+      setActiveId(initialOpenTradeId);
+    }
+  }, [initialOpenTradeId]);
 
   return (
     <>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Date</TableHead>
-            <TableHead>Symbol</TableHead>
-            <TableHead>Dir</TableHead>
-            <TableHead className="text-right">PnL</TableHead>
-            <TableHead> </TableHead>
-            <TableHead className="text-right"> </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {trades.map((trade) => (
-            <TradeRow
-              key={trade.id}
-              trade={trade}
-              selected={trade.id === activeId}
-              onPreview={() => setActiveId(trade.id)}
-            />
-          ))}
-        </TableBody>
-      </Table>
+      {showSavedBanner ? (
+        <p className="mb-4 rounded-xl border border-primary/20 bg-primary/8 px-4 py-3 text-sm text-foreground">
+          Trade logged — your card is ready below.
+        </p>
+      ) : null}
 
-      <Sheet open={activeId !== null} onOpenChange={(open) => !open && setActiveId(null)}>
-        <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md">
-          <SheetHeader>
-            <SheetTitle>Daily summary</SheetTitle>
-            <SheetDescription>
-              {active
-                ? `All trades on this day, starting from ${active.symbol}.`
-                : "Day overview"}
-            </SheetDescription>
-          </SheetHeader>
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        {trades.map((trade) => (
+          <TradeListCard
+            key={trade.id}
+            trade={trade}
+            selected={trade.id === activeId}
+            onClick={() => setActiveId(trade.id)}
+          />
+        ))}
+      </div>
+
+      <Dialog open={activeId !== null} onOpenChange={(open) => !open && setActiveId(null)}>
+        <DialogContent
+          className={cn(
+            "max-h-[90vh] gap-0 overflow-y-auto border-0 bg-transparent p-0 shadow-none",
+            dialogWide
+              ? "max-w-[min(92vw,640px)] sm:max-w-[min(92vw,640px)]"
+              : "max-w-[min(92vw,480px)] sm:max-w-[min(92vw,480px)]",
+          )}
+        >
+          <DialogHeader className="sr-only">
+            <DialogTitle>Trade card</DialogTitle>
+            <DialogDescription>Interactive trade summary card</DialogDescription>
+          </DialogHeader>
           {active ? (
-            <div className="mt-6">
-              <TradeDetailCard
+            <div className="flex flex-col items-center gap-2.5">
+              <TradeInteractiveCard
                 trade={active}
-                dayTrades={tradesOnSameDay(trades, active.date)}
+                size="large"
+                showFooterLink={false}
               />
+              <div
+                className={cn(
+                  "flex w-full gap-2",
+                  dialogWide ? "max-w-[min(92vw,640px)]" : "max-w-[min(92vw,480px)]",
+                )}
+              >
+                <Button asChild className="h-9 flex-1 text-xs" variant="secondary">
+                  <Link href={`/trades/${active.id}`}>Full details</Link>
+                </Button>
+                <Button
+                  className="h-9 flex-1 text-xs"
+                  type="button"
+                  variant="outline"
+                  onClick={() => setActiveId(null)}
+                >
+                  Close
+                </Button>
+              </div>
             </div>
           ) : null}
-        </SheetContent>
-      </Sheet>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

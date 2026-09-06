@@ -59,6 +59,7 @@ export default async function TradeEditPage({ params }: TradeEditPageProps) {
           fees: trade.fees,
           session: trade.session,
           entryTime: trade.entryTime,
+          exitTime: trade.exitTime,
           notes: trade.notes,
           date: trade.date,
           tags: trade.tags,

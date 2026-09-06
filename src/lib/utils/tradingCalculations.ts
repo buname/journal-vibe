@@ -279,6 +279,54 @@ export function generateCalendarData(
   return out;
 }
 
+export type TradeCalendarInput = {
+  date: Date;
+  id: string;
+  pnl: number;
+  rValue: number | null;
+  symbol: string;
+};
+
+export function tradesToFullScreenCalendarData(
+  trades: TradeCalendarInput[],
+) {
+  const byDay = new Map<
+    string,
+    {
+      day: Date;
+      events: Array<{
+        datetime: string;
+        id: string;
+        name: string;
+        pnl: number;
+        r?: number;
+        symbol?: string;
+        time: string;
+      }>;
+    }
+  >();
+
+  for (const trade of trades) {
+    const key = format(trade.date, "yyyy-MM-dd");
+    if (!byDay.has(key)) {
+      byDay.set(key, { day: trade.date, events: [] });
+    }
+
+    const sign = trade.pnl >= 0 ? "+" : "-";
+    byDay.get(key)!.events.push({
+      id: trade.id,
+      name: trade.symbol,
+      time: `${sign}$${Math.abs(trade.pnl).toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
+      datetime: key,
+      pnl: trade.pnl,
+      r: trade.rValue ?? undefined,
+      symbol: trade.symbol,
+    });
+  }
+
+  return Array.from(byDay.values());
+}
+
 // ---------------------------------------------------------------------------
 // Equity curve
 // ---------------------------------------------------------------------------

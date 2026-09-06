@@ -5,7 +5,9 @@ import { notFound, redirect } from "next/navigation";
 import type { ReactNode } from "react";
 
 import { auth } from "@/auth";
-import { PnlBadge } from "@/components/trading/pnl-badge";
+import { DailySummaryCard } from "@/components/trading/daily-summary-card";
+import { formatTradeDuration } from "@/components/trading/trade-card-utils";
+import { TradeInteractiveCard } from "@/components/trading/trade-interactive-card";
 import { TradeDeleteButton } from "@/components/trading/trade-delete-button";
 import { Button } from "@/components/ui/button";
 import { ImageGallery } from "@/components/ui/image-gallery";
@@ -35,6 +37,42 @@ function price(value: number | null | undefined) {
   );
 }
 
+function toTradeDetail(trade: {
+  id: string;
+  symbol: string;
+  direction: string;
+  pnl: number;
+  entryPrice: number;
+  exitPrice: number;
+  size: number;
+  rValue: number | null;
+  fees: number;
+  session: string | null;
+  notes: string | null;
+  images: string[];
+  date: Date;
+  entryTime: Date | null;
+  exitTime: Date | null;
+}) {
+  return {
+    id: trade.id,
+    symbol: trade.symbol,
+    direction: trade.direction,
+    pnl: trade.pnl,
+    entryPrice: trade.entryPrice,
+    exitPrice: trade.exitPrice,
+    size: trade.size,
+    rValue: trade.rValue,
+    fees: trade.fees,
+    session: trade.session,
+    notes: trade.notes,
+    images: trade.images,
+    date: trade.date.toISOString(),
+    entryTime: trade.entryTime?.toISOString() ?? null,
+    exitTime: trade.exitTime?.toISOString() ?? null,
+  };
+}
+
 export default async function TradeEntryPage({ params }: TradeEntryPageProps) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -51,8 +89,24 @@ export default async function TradeEntryPage({ params }: TradeEntryPageProps) {
     notFound();
   }
 
+  const dayStart = new Date(trade.date);
+  dayStart.setHours(0, 0, 0, 0);
+  const dayEnd = new Date(trade.date);
+  dayEnd.setHours(23, 59, 59, 999);
+
+  const dayTrades = await prisma.tradeLog.findMany({
+    where: {
+      userId: session.user.id,
+      date: { gte: dayStart, lte: dayEnd },
+    },
+    orderBy: { date: "desc" },
+  });
+
+  const tradeDetail = toTradeDetail(trade);
+  const dayTradeDetails = dayTrades.map(toTradeDetail);
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-xs uppercase tracking-wide text-muted-foreground">
@@ -82,14 +136,22 @@ export default async function TradeEntryPage({ params }: TradeEntryPageProps) {
         </div>
       </div>
 
-      <div className="rounded-xl border border-border/70 bg-card p-5">
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,420px)] xl:items-start">
+        <div className="flex justify-center xl:justify-start">
+          <TradeInteractiveCard trade={tradeDetail} size="large" />
+        </div>
+        <DailySummaryCard
+          trades={dayTradeDetails}
+          userName={session.user.name}
+        />
+      </div>
+
+      <div className="rounded-2xl border border-border/70 bg-card p-5 sm:p-6">
+        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+          Execution data
+        </h2>
         <div className="grid grid-cols-2 gap-5 sm:grid-cols-3">
           <Detail label="Direction" value={trade.direction} />
-          <Detail label="PnL" value={<PnlBadge pnl={trade.pnl} />} />
-          <Detail
-            label="R"
-            value={trade.rValue != null ? `${trade.rValue.toFixed(2)}R` : "—"}
-          />
           <Detail label="Entry" value={price(trade.entryPrice)} />
           <Detail label="Exit" value={price(trade.exitPrice)} />
           <Detail label="Stop" value={price(trade.stopPrice)} />
@@ -98,8 +160,21 @@ export default async function TradeEntryPage({ params }: TradeEntryPageProps) {
           <Detail
             label="Entry time"
             value={
-              trade.entryTime ? format(trade.entryTime, "MMM d, HH:mm") : "—"
+              trade.entryTime ? format(trade.entryTime, "MMM d, HH:mm:ss") : "—"
             }
+          />
+          <Detail
+            label="Duration"
+            value={
+              formatTradeDuration(
+                trade.entryTime?.toISOString() ?? null,
+                trade.exitTime?.toISOString() ?? null,
+              ) ?? "—"
+            }
+          />
+          <Detail
+            label="R"
+            value={trade.rValue != null ? `${trade.rValue.toFixed(2)}R` : "—"}
           />
         </div>
       </div>
@@ -139,10 +214,10 @@ export default async function TradeEntryPage({ params }: TradeEntryPageProps) {
         </div>
       ) : null}
 
-      {trade.images.length > 0 ? (
+      {trade.images.length > 1 ? (
         <div className="space-y-2">
-          <h2 className="text-sm font-semibold tracking-tight">Images</h2>
-          <ImageGallery images={trade.images} altLabel="Trade screenshot" />
+          <h2 className="text-sm font-semibold tracking-tight">More screenshots</h2>
+          <ImageGallery images={trade.images.slice(1)} altLabel="Trade screenshot" />
         </div>
       ) : null}
     </div>

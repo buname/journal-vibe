@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
+import { dbActionError, rethrowIfRedirect } from "@/lib/db-errors";
 import { prisma } from "@/lib/db";
 import { backtestUpsertSchema } from "@/lib/validations/backtest";
 
@@ -58,29 +59,37 @@ export async function createBacktest(
     return { status: "error", message };
   }
 
-  await prisma.backtestNote.create({
-    data: {
-      userId: session.user.id,
-      strategy: parsed.data.strategy,
-      timeframe: parsed.data.timeframe,
-      direction: parsed.data.direction,
-      instrumentType: parsed.data.instrumentType,
-      entryPrice: parsed.data.entryPrice,
-      stopPrice: parsed.data.stopPrice,
-      winRate: calculateBacktestWinRate(
-        parsed.data.winningTrades,
-        parsed.data.totalTrades,
-      ),
-      expectancy: parsed.data.expectancy,
-      notes: parsed.data.notes,
-      date: parsed.data.date,
-      tags: parsed.data.tags,
-      images: parsed.data.images,
-    },
-  });
+  try {
+    await prisma.backtestNote.create({
+      data: {
+        userId: session.user.id,
+        strategy: parsed.data.strategy,
+        timeframe: parsed.data.timeframe,
+        direction: parsed.data.direction,
+        instrumentType: parsed.data.instrumentType,
+        entryPrice: parsed.data.entryPrice,
+        stopPrice: parsed.data.stopPrice,
+        winRate: calculateBacktestWinRate(
+          parsed.data.winningTrades,
+          parsed.data.totalTrades,
+        ),
+        expectancy: parsed.data.expectancy,
+        notes: parsed.data.notes,
+        date: parsed.data.date,
+        tags: parsed.data.tags,
+        images: parsed.data.images,
+      },
+    });
 
-  revalidateBacktestSurfaces();
-  redirect("/backtests?saved=1");
+    revalidateBacktestSurfaces();
+    redirect("/backtests?saved=1");
+  } catch (error) {
+    rethrowIfRedirect(error);
+    return {
+      status: "error",
+      message: dbActionError(error, "Could not save backtest note."),
+    };
+  }
 }
 
 export async function updateBacktest(
@@ -103,38 +112,46 @@ export async function updateBacktest(
     return { status: "error", message };
   }
 
-  const existing = await prisma.backtestNote.findFirst({
-    where: { id, userId: session.user.id },
-  });
+  try {
+    const existing = await prisma.backtestNote.findFirst({
+      where: { id, userId: session.user.id },
+    });
 
-  if (!existing) {
-    return { status: "error", message: "Backtest note not found." };
+    if (!existing) {
+      return { status: "error", message: "Backtest note not found." };
+    }
+
+    await prisma.backtestNote.update({
+      where: { id },
+      data: {
+        strategy: parsed.data.strategy,
+        timeframe: parsed.data.timeframe,
+        direction: parsed.data.direction,
+        instrumentType: parsed.data.instrumentType,
+        entryPrice: parsed.data.entryPrice,
+        stopPrice: parsed.data.stopPrice,
+        winRate: calculateBacktestWinRate(
+          parsed.data.winningTrades,
+          parsed.data.totalTrades,
+        ),
+        expectancy: parsed.data.expectancy,
+        notes: parsed.data.notes,
+        date: parsed.data.date,
+        tags: parsed.data.tags,
+        images: parsed.data.images,
+      },
+    });
+
+    revalidateBacktestSurfaces();
+    revalidatePath(`/backtests/${id}`);
+    redirect(`/backtests/${id}?saved=1`);
+  } catch (error) {
+    rethrowIfRedirect(error);
+    return {
+      status: "error",
+      message: dbActionError(error, "Could not update backtest note."),
+    };
   }
-
-  await prisma.backtestNote.update({
-    where: { id },
-    data: {
-      strategy: parsed.data.strategy,
-      timeframe: parsed.data.timeframe,
-      direction: parsed.data.direction,
-      instrumentType: parsed.data.instrumentType,
-      entryPrice: parsed.data.entryPrice,
-      stopPrice: parsed.data.stopPrice,
-      winRate: calculateBacktestWinRate(
-        parsed.data.winningTrades,
-        parsed.data.totalTrades,
-      ),
-      expectancy: parsed.data.expectancy,
-      notes: parsed.data.notes,
-      date: parsed.data.date,
-      tags: parsed.data.tags,
-      images: parsed.data.images,
-    },
-  });
-
-  revalidateBacktestSurfaces();
-  revalidatePath(`/backtests/${id}`);
-  redirect(`/backtests/${id}?saved=1`);
 }
 
 export async function deleteBacktest(
@@ -150,14 +167,19 @@ export async function deleteBacktest(
     return { error: "Missing backtest id." };
   }
 
-  const result = await prisma.backtestNote.deleteMany({
-    where: { id, userId: session.user.id },
-  });
+  try {
+    const result = await prisma.backtestNote.deleteMany({
+      where: { id, userId: session.user.id },
+    });
 
-  if (result.count === 0) {
-    return { error: "Backtest note not found." };
+    if (result.count === 0) {
+      return { error: "Backtest note not found." };
+    }
+
+    revalidateBacktestSurfaces();
+    return undefined;
+  } catch (error) {
+    rethrowIfRedirect(error);
+    return { error: dbActionError(error, "Could not delete backtest note.") };
   }
-
-  revalidateBacktestSurfaces();
-  return undefined;
 }

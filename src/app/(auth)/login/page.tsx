@@ -11,11 +11,7 @@ export default async function LoginPage() {
   }
 
   return (
-    <Suspense
-      fallback={
-        <p className="text-sm text-muted-foreground">Preparing sign-in…</p>
-      }
-    >
+    <Suspense fallback={<p className="gate-hint">Preparing sign-in…</p>}>
       <LoginForm />
     </Suspense>
   );

@@ -23,9 +23,10 @@ function parseYmd(value?: string): Date | undefined {
 type DatePickerProps = {
   name: string;
   defaultValue?: string;
+  onChange?: (value: string) => void;
 };
 
-export function DatePicker({ name, defaultValue }: DatePickerProps) {
+export function DatePicker({ name, defaultValue, onChange }: DatePickerProps) {
   const [date, setDate] = useState<Date | undefined>(parseYmd(defaultValue));
   const [open, setOpen] = useState(false);
   const value = date ? format(date, "yyyy-MM-dd") : "";
@@ -53,7 +54,11 @@ export function DatePicker({ name, defaultValue }: DatePickerProps) {
             selected={date}
             onSelect={(next) => {
               setDate(next);
+              onChange?.(next ? format(next, "yyyy-MM-dd") : "");
               setOpen(false);
+              requestAnimationFrame(() => {
+                (document.activeElement as HTMLElement | null)?.blur();
+              });
             }}
             autoFocus
           />

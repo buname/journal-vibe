@@ -57,6 +57,14 @@ export const tradeUpsertSchema = z.object({
       const d = new Date(v);
       return Number.isNaN(d.getTime()) ? undefined : d;
     }),
+  exitTime: z
+    .string()
+    .optional()
+    .transform((v) => {
+      if (!v || v.trim() === "") return undefined;
+      const d = new Date(v);
+      return Number.isNaN(d.getTime()) ? undefined : d;
+    }),
   notes: z
     .string()
     .optional()

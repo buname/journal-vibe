@@ -1,0 +1,160 @@
+/* Recessed lever toggle — stem emerges from pill slot */
+
+.toggle-container {
+  --knob-size: 1.3rem;
+  --toggle-width: 4.85rem;
+  --toggle-height: 3.35rem;
+  --slot-height: 1.1rem;
+  --toggle-travel: calc(var(--toggle-width) - var(--knob-size) - 1.05rem);
+  position: relative;
+  display: inline-block;
+  width: var(--toggle-width);
+  height: var(--toggle-height);
+  flex-shrink: 0;
+  cursor: pointer;
+  user-select: none;
+  background: transparent;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.toggle-container::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  bottom: -0.1rem;
+  left: 8%;
+  right: 8%;
+  height: 0.55rem;
+  background: radial-gradient(ellipse at center, rgb(0 0 0 / 0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.toggle-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  margin: 0;
+  pointer-events: none;
+}
+
+/* Recessed pill slot — light lip + carved interior */
+.toggle-base {
+  position: absolute;
+  z-index: 1;
+  inset: auto 0 0.12rem;
+  height: var(--slot-height);
+  padding: 0.14rem;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ececec 0%, #d4d4d4 100%);
+  box-shadow:
+    0 2px 5px rgb(0 0 0 / 0.07),
+    inset 0 1px 0 rgb(255 255 255 / 0.95);
+  pointer-events: none;
+}
+
+.toggle-base-inside {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(180deg, #c2c2c2 0%, #a3a3a3 100%);
+  box-shadow:
+    inset 0 3px 7px rgb(0 0 0 / 0.32),
+    inset 0 -1px 0 rgb(255 255 255 / 0.42),
+    inset 0 1px 0 rgb(0 0 0 / 0.06);
+}
+
+.toggle-base-inside::after {
+  display: none;
+}
+
+.toggle-handle-wrapper {
+  position: absolute;
+  z-index: 3;
+  bottom: calc(var(--slot-height) / 2 - 0.08rem);
+  left: 0.82rem;
+  width: var(--knob-size);
+  height: calc(var(--toggle-height) - var(--slot-height) + 0.55rem);
+  pointer-events: none;
+  transform-origin: 50% 100%;
+  transform: rotate(-44deg);
+  transition: transform 0.24s cubic-bezier(0.65, 1.35, 0.5, 1);
+  filter: drop-shadow(0 2px 4px rgb(0 0 0 / 0.2));
+}
+
+.toggle-input:checked + .toggle-handle-wrapper {
+  transform: translateX(var(--toggle-travel)) rotate(44deg);
+}
+
+.toggle-handle {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.toggle-handle-knob {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 2;
+  width: var(--knob-size);
+  height: var(--knob-size);
+  margin-left: calc(var(--knob-size) / -2);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 28% 24%,
+    #ffb0b0 0%,
+    #f04444 34%,
+    #dc2626 68%,
+    #b91c1c 100%
+  );
+  box-shadow:
+    0 3px 6px rgb(0 0 0 / 0.28),
+    inset 0 -2px 4px rgb(0 0 0 / 0.22),
+    inset 0 3px 5px rgb(255 255 255 / 0.42);
+}
+
+.toggle-handle-bar-wrapper {
+  position: absolute;
+  top: calc(var(--knob-size) / 2 - 0.02rem);
+  left: 50%;
+  z-index: 1;
+  width: 0.4rem;
+  height: calc(100% - var(--knob-size) / 2 + 0.35rem);
+  margin-left: -0.2rem;
+  overflow: visible;
+}
+
+.toggle-handle-bar {
+  position: absolute;
+  top: calc(var(--knob-size) / -2 + 0.05rem);
+  left: 0;
+  width: 100%;
+  height: calc(100% + var(--knob-size) / 2);
+  border-radius: 0.22rem;
+  background-image: linear-gradient(
+    to right,
+    #6b6b6b,
+    #b0b0b0,
+    #f5f5f5 46%,
+    #f5f5f5 54%,
+    #b0b0b0,
+    #6b6b6b
+  );
+  background-size: 200% 100%;
+  background-position-x: 0%;
+  box-shadow:
+    inset 0 0.55rem 0.18rem rgb(0 0 0 / 0.32),
+    0 1px 0 rgb(255 255 255 / 0.35);
+  transition: background-position-x 0.24s cubic-bezier(0.65, 1.35, 0.5, 1);
+}
+
+.toggle-input:checked + .toggle-handle-wrapper .toggle-handle-bar {
+  background-position-x: 100%;
+}
+
+.toggle-container:focus-within {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 3px;
+  border-radius: 0.65rem;
+}

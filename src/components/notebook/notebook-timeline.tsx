@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { BookOpen, FlaskConical, LineChart } from "lucide-react";
 
 import { PnlBadge } from "@/components/trading/pnl-badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,7 +10,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { StarRatingDisplay } from "@/components/ui/star-rating";
+import { EmptyState } from "@/components/ui/empty-state";
+import { DayRatingDisplay } from "@/components/journal/day-rating-slider";
 import { formatListDate } from "@/lib/format";
 import type { NotebookFilter } from "@/lib/notebook/parse-kind";
 import { parseTag } from "@/lib/tag-links";
@@ -86,7 +89,7 @@ function TimelineCard({
               <CardDescription>
                 <span className="flex items-center gap-2">
                   {formatListDate(item.date)}
-                  <StarRatingDisplay value={item.rating} />
+                  <DayRatingDisplay value={item.rating} />
                 </span>
               </CardDescription>
             </div>
@@ -165,27 +168,24 @@ type NotebookTimelineProps = {
 export function NotebookTimeline({ items, activeKind }: NotebookTimelineProps) {
   if (items.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>No items yet</CardTitle>
-          <CardDescription>
-            Start by adding a journal entry, a trade, or a backtest note.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-wrap gap-2 text-sm">
-          <Link className="underline" href="/journal/new">
-            New journal
-          </Link>
-          <span className="text-muted-foreground">·</span>
-          <Link className="underline" href="/trades/new">
-            Log trade
-          </Link>
-          <span className="text-muted-foreground">·</span>
-          <Link className="underline" href="/backtests/new">
-            New backtest
-          </Link>
-        </CardContent>
-      </Card>
+      <div className="flex flex-col items-center gap-4 py-4">
+        <EmptyState
+          title="No items yet"
+          description="Start by adding a journal entry, a trade, or a backtest note."
+          icons={[BookOpen, LineChart, FlaskConical]}
+        />
+        <div className="flex flex-wrap justify-center gap-2">
+          <Button size="sm" asChild>
+            <Link href="/journal/new">New journal</Link>
+          </Button>
+          <Button size="sm" variant="outline" asChild>
+            <Link href="/trades/new">Log trade</Link>
+          </Button>
+          <Button size="sm" variant="outline" asChild>
+            <Link href="/backtests/new">New backtest</Link>
+          </Button>
+        </div>
+      </div>
     );
   }
 

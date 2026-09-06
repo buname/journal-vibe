@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ImageThumbs } from "@/components/ui/image-thumbs";
-import { StarRatingDisplay } from "@/components/ui/star-rating";
+import { DayRatingDisplay } from "@/components/journal/day-rating-slider";
 import { formatListDate } from "@/lib/format";
 import { parseTag } from "@/lib/tag-links";
 
@@ -24,6 +24,7 @@ type JournalEntryCardProps = {
     rating: number | null;
     tags: string[];
     images: string[];
+    excerpt?: string;
   };
 };
 
@@ -47,7 +48,7 @@ export function JournalEntryCard({ entry }: JournalEntryCardProps) {
           <CardDescription>
             <span className="flex items-center gap-2">
               {formatListDate(entry.date)}
-              <StarRatingDisplay value={entry.rating} />
+              <DayRatingDisplay value={entry.rating} />
             </span>
             {entry.tags.length > 0 ? (
               <span className="block pt-1 text-xs">
@@ -96,9 +97,14 @@ export function JournalEntryCard({ entry }: JournalEntryCardProps) {
           <Link href={href}>Open</Link>
         </Button>
       </CardHeader>
-      {entry.images.length > 0 ? (
-        <CardContent className="pt-0">
-          <ImageThumbs images={entry.images} />
+      {entry.excerpt || entry.images.length > 0 ? (
+        <CardContent className="space-y-3 pt-0">
+          {entry.excerpt ? (
+            <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+              {entry.excerpt}
+            </p>
+          ) : null}
+          {entry.images.length > 0 ? <ImageThumbs images={entry.images} /> : null}
         </CardContent>
       ) : null}
     </Card>

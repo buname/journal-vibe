@@ -7,6 +7,7 @@ type ImageUploaderProps = {
   name: string;
   defaultValue?: string[];
   altLabel?: string;
+  onChange?: (urls: string[]) => void;
 };
 
 const MAX_DIMENSION = 1600;
@@ -52,6 +53,7 @@ export function ImageUploader({
   name,
   defaultValue = [],
   altLabel = "Screenshot",
+  onChange,
 }: ImageUploaderProps) {
   const [urls, setUrls] = useState<string[]>(defaultValue);
   const [processing, setProcessing] = useState(false);
@@ -105,6 +107,10 @@ export function ImageUploader({
     window.addEventListener("paste", onPaste);
     return () => window.removeEventListener("paste", onPaste);
   }, []);
+
+  useEffect(() => {
+    onChange?.(urls);
+  }, [onChange, urls]);
 
   function removeAt(index: number) {
     setUrls((prev) => prev.filter((_, i) => i !== index));

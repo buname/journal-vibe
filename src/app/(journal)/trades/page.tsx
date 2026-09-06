@@ -2,8 +2,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
+import { DbOfflineBanner } from "@/components/layout/db-offline-banner";
 import { PnlBadge } from "@/components/trading/pnl-badge";
-import { TradeLogList } from "@/components/trading/trade-log-list";
+import { RecentTradesCard } from "@/components/trading/recent-trades-card";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,27 +14,39 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { prisma } from "@/lib/db";
+import { isDbConnectionError } from "@/lib/db-errors";
 
-export default async function TradesPage() {
+type TradesPageProps = {
+  searchParams: Promise<{ saved?: string; trade?: string }>;
+};
+
+export default async function TradesPage({ searchParams }: TradesPageProps) {
   const session = await auth();
   if (!session?.user?.id) {
     redirect("/login");
   }
 
-  const trades = await prisma.tradeLog.findMany({
-    where: { userId: session.user.id },
-    orderBy: { date: "desc" },
-  });
+  const params = await searchParams;
+
+  let trades: Awaited<ReturnType<typeof prisma.tradeLog.findMany>> = [];
+  let dbOffline = false;
+
+  try {
+    trades = await prisma.tradeLog.findMany({
+      where: { userId: session.user.id },
+      orderBy: { date: "desc" },
+    });
+  } catch (error) {
+    dbOffline = isDbConnectionError(error);
+  }
 
   const totalPnL = trades.reduce((sum, trade) => sum + trade.pnl, 0);
 
   return (
     <div className="space-y-8">
+      {dbOffline ? <DbOfflineBanner /> : null}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">
-            Trading
-          </p>
           <h1 className="text-2xl font-semibold tracking-tight">Trade log</h1>
           <p className="text-sm text-muted-foreground">
             Structured executions with computed PnL (including fees).
@@ -65,7 +78,7 @@ export default async function TradesPage() {
         </Card>
       </div>
 
-      {trades.length === 0 ? (
+      {dbOffline ? null : trades.length === 0 ? (
         <Card>
           <CardHeader>
             <CardTitle>No trades yet</CardTitle>
@@ -80,34 +93,27 @@ export default async function TradesPage() {
           </CardContent>
         </Card>
       ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent trades</CardTitle>
-            <CardDescription>
-              The eye icon opens that day’s summary. Open goes to the trade.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="px-0 sm:px-6">
-            <TradeLogList
-              trades={trades.map((trade) => ({
-                id: trade.id,
-                symbol: trade.symbol,
-                direction: trade.direction,
-                pnl: trade.pnl,
-                entryPrice: trade.entryPrice,
-                exitPrice: trade.exitPrice,
-                size: trade.size,
-                rValue: trade.rValue,
-                fees: trade.fees,
-                session: trade.session,
-                notes: trade.notes,
-                images: trade.images,
-                date: trade.date.toISOString(),
-                entryTime: trade.entryTime?.toISOString() ?? null,
-              }))}
-            />
-          </CardContent>
-        </Card>
+        <RecentTradesCard
+          initialOpenTradeId={params.trade}
+          showSavedBanner={params.saved === "1"}
+          trades={trades.map((trade) => ({
+            id: trade.id,
+            symbol: trade.symbol,
+            direction: trade.direction,
+            pnl: trade.pnl,
+            entryPrice: trade.entryPrice,
+            exitPrice: trade.exitPrice,
+            size: trade.size,
+            rValue: trade.rValue,
+            fees: trade.fees,
+            session: trade.session,
+            notes: trade.notes,
+            images: trade.images,
+            date: trade.date.toISOString(),
+            entryTime: trade.entryTime?.toISOString() ?? null,
+            exitTime: trade.exitTime?.toISOString() ?? null,
+          }))}
+        />
       )}
     </div>
   );
