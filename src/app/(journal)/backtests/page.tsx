@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
+import { DbOfflineBanner } from "@/components/layout/db-offline-banner";
 import { BacktestNoteCard } from "@/components/trading/backtest-note-card";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,10 +20,18 @@ export default async function BacktestsPage() {
     redirect("/login");
   }
 
-  const backtests = await prisma.backtestNote.findMany({
-    where: { userId: session.user.id },
-    orderBy: { date: "desc" },
-  });
+  let backtests: Awaited<ReturnType<typeof prisma.backtestNote.findMany>> = [];
+  let dbOffline = false;
+
+  try {
+    backtests = await prisma.backtestNote.findMany({
+      where: { userId: session.user.id },
+      orderBy: { date: "desc" },
+    });
+  } catch {
+    dbOffline = true;
+  }
+
   const totalBacktests = backtests.length;
   const averageWinRate =
     totalBacktests === 0
@@ -41,11 +50,9 @@ export default async function BacktestsPage() {
 
   return (
     <div className="space-y-8">
+      {dbOffline ? <DbOfflineBanner /> : null}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">
-            Research
-          </p>
           <h1 className="text-2xl font-semibold tracking-tight">
             Backtest notes
           </h1>
@@ -102,7 +109,7 @@ export default async function BacktestsPage() {
         </Card>
       </div>
 
-      {backtests.length === 0 ? (
+      {dbOffline ? null : backtests.length === 0 ? (
         <Card>
           <CardHeader>
             <CardTitle>No backtests yet</CardTitle>

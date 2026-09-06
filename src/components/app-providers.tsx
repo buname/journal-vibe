@@ -9,5 +9,13 @@ type AppProvidersProps = {
 };
 
 export function AppProviders({ children, session }: AppProvidersProps) {
-  return <SessionProvider session={session}>{children}</SessionProvider>;
+  return (
+    <SessionProvider
+      session={session}
+      refetchOnWindowFocus={false}
+      refetchWhenOffline={false}
+    >
+      {children}
+    </SessionProvider>
+  );
 }

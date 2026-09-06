@@ -1,6 +1,6 @@
 "use client";
 
-import { Eye } from "lucide-react";
+import { CreditCard, Eye } from "lucide-react";
 import Link from "next/link";
 
 import { PnlBadge } from "@/components/trading/pnl-badge";
@@ -46,10 +46,20 @@ export function TradeRow({ trade, selected, onPreview }: TradeRowProps) {
             variant="ghost"
             size="sm"
             className="h-8 w-8 px-0 text-muted-foreground"
-            aria-label="View day summary"
+            aria-label="View trade card"
             onClick={onPreview}
           >
-            <Eye />
+            <CreditCard className="size-4" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 px-0 text-muted-foreground"
+            aria-label="Preview trade card"
+            onClick={onPreview}
+          >
+            <Eye className="size-4" />
           </Button>
           <Button variant="outline" size="sm" asChild>
             <Link href={`/trades/${trade.id}`}>Open</Link>

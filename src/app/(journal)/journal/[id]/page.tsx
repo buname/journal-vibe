@@ -6,7 +6,7 @@ import { auth } from "@/auth";
 import { JournalDeleteButton } from "@/components/editor/journal-delete-button";
 import { Button } from "@/components/ui/button";
 import { ImageGallery } from "@/components/ui/image-gallery";
-import { StarRatingDisplay } from "@/components/ui/star-rating";
+import { DayRatingDisplay } from "@/components/journal/day-rating-slider";
 import { prisma } from "@/lib/db";
 import { formatListDate } from "@/lib/format";
 import { parseTag } from "@/lib/tag-links";
@@ -45,7 +45,7 @@ export default async function JournalEntryPage({
           </h1>
           <span className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
             {formatListDate(entry.date)}
-            <StarRatingDisplay value={entry.rating} />
+            <DayRatingDisplay value={entry.rating} />
           </span>
         </div>
         <div className="flex flex-wrap items-center gap-1">

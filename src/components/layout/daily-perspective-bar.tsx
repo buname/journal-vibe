@@ -1,28 +1,59 @@
-import { Sparkles } from "lucide-react";
+"use client";
 
-const PERSPECTIVE_LINE = "Base Hits > Home Runs";
+import { motion, useReducedMotion } from "framer-motion";
+import { useEffect, useState } from "react";
 
 export function DailyPerspectiveBar() {
-  return (
-    <div className="border-t border-border/70 bg-background">
-      <div className="mx-auto flex max-w-5xl items-start gap-2.5 px-3 py-3 sm:gap-4 sm:px-4 sm:py-3.5">
-        <div
-          className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl border border-border/80 bg-muted/50 text-foreground shadow-sm sm:size-10 sm:rounded-2xl"
-          aria-hidden
-        >
-          <Sparkles className="size-4 sm:size-5" strokeWidth={2} />
-        </div>
-        <div className="min-w-0 flex-1 space-y-1.5">
-          <span className="block text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground sm:text-[11px] sm:tracking-[0.2em]">
-            Perspective
+  const prefersReducedMotion = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || prefersReducedMotion) {
+    return (
+      <div className="journal-perspective" aria-label="Trading mantra">
+        <p className="journal-perspective-inner">
+          <span className="journal-perspective-base">Base Hits</span>
+          <span className="journal-perspective-chevron" aria-hidden="true">
+            &gt;
           </span>
-          <p className="min-w-0 font-sans text-lg font-extrabold leading-snug tracking-tight antialiased sm:text-xl">
-            <span className="animate-pulse-glow text-white">
-              {PERSPECTIVE_LINE}
-            </span>
-          </p>
-        </div>
+          <span className="journal-perspective-home">
+            <span className="journal-perspective-shine">Home Runs</span>
+          </span>
+        </p>
       </div>
+    );
+  }
+
+  return (
+    <div className="journal-perspective" aria-label="Trading mantra">
+      <p className="journal-perspective-inner">
+        <motion.span
+          className="journal-perspective-base"
+          initial={{ opacity: 0, x: -8 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        >
+          Base Hits
+        </motion.span>
+        <span className="journal-perspective-chevron" aria-hidden="true">
+          &gt;
+        </span>
+        <motion.span
+          className="journal-perspective-home"
+          initial={{ opacity: 0, x: 8 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{
+            duration: 0.55,
+            delay: 0.08,
+            ease: [0.16, 1, 0.3, 1],
+          }}
+        >
+          <span className="journal-perspective-shine">Home Runs</span>
+        </motion.span>
+      </p>
     </div>
   );
 }

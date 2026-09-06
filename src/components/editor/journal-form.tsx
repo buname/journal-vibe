@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DatePicker } from "@/components/ui/date-picker";
 import { ImageUploader } from "@/components/ui/image-uploader";
-import { StarRating } from "@/components/ui/star-rating";
+import { DayRatingSlider } from "@/components/journal/day-rating-slider";
 import { Textarea } from "@/components/ui/textarea";
 import { formatInputDate } from "@/lib/format";
 
@@ -69,6 +69,21 @@ export function JournalForm(props: JournalFormProps) {
         </p>
       ) : null}
 
+      <div className="rounded-2xl border border-border/70 bg-muted/20 p-4 sm:p-5">
+        <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          Quick check-in
+        </p>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label>Day</Label>
+            <DatePicker name="date" defaultValue={defaults.date} />
+          </div>
+          <div className="sm:col-span-2">
+            <DayRatingSlider name="rating" defaultValue={defaults.rating} />
+          </div>
+        </div>
+      </div>
+
       <div className="space-y-2">
         <Label htmlFor="title">Title</Label>
         <Input
@@ -79,19 +94,6 @@ export function JournalForm(props: JournalFormProps) {
           defaultValue={defaults.title}
           placeholder="What stood out today?"
         />
-      </div>
-
-      <div className="space-y-2">
-        <Label>Day</Label>
-        <DatePicker name="date" defaultValue={defaults.date} />
-      </div>
-
-      <div className="space-y-2">
-        <Label>Day rating</Label>
-        <StarRating name="rating" defaultValue={defaults.rating} />
-        <p className="text-xs text-muted-foreground">
-          How was your day? Tap a star to rate (tap again to clear).
-        </p>
       </div>
 
       <div className="space-y-2">

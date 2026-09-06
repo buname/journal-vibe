@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
+import { dbActionError, rethrowIfRedirect } from "@/lib/db-errors";
 import { prisma } from "@/lib/db";
 import { journalUpsertSchema } from "@/lib/validations/journal";
 
@@ -37,22 +38,30 @@ export async function createJournal(
     return { status: "error", message };
   }
 
-  await prisma.dailyJournal.create({
-    data: {
-      userId: session.user.id,
-      title: parsed.data.title,
-      content: parsed.data.content,
-      date: parsed.data.date,
-      tags: parsed.data.tags,
-      images: parsed.data.images,
-      rating: parsed.data.rating,
-    },
-  });
+  try {
+    await prisma.dailyJournal.create({
+      data: {
+        userId: session.user.id,
+        title: parsed.data.title,
+        content: parsed.data.content,
+        date: parsed.data.date,
+        tags: parsed.data.tags,
+        images: parsed.data.images,
+        rating: parsed.data.rating,
+      },
+    });
 
-  revalidatePath("/journal");
-  revalidatePath("/notebook");
-  revalidatePath("/dashboard");
-  redirect("/journal?saved=1");
+    revalidatePath("/journal");
+    revalidatePath("/notebook");
+    revalidatePath("/dashboard");
+    redirect("/journal?saved=1");
+  } catch (error) {
+    rethrowIfRedirect(error);
+    return {
+      status: "error",
+      message: dbActionError(error, "Could not save journal entry."),
+    };
+  }
 }
 
 export async function updateJournal(
@@ -75,31 +84,39 @@ export async function updateJournal(
     return { status: "error", message };
   }
 
-  const existing = await prisma.dailyJournal.findFirst({
-    where: { id, userId: session.user.id },
-  });
+  try {
+    const existing = await prisma.dailyJournal.findFirst({
+      where: { id, userId: session.user.id },
+    });
 
-  if (!existing) {
-    return { status: "error", message: "Journal entry not found." };
+    if (!existing) {
+      return { status: "error", message: "Journal entry not found." };
+    }
+
+    await prisma.dailyJournal.update({
+      where: { id },
+      data: {
+        title: parsed.data.title,
+        content: parsed.data.content,
+        date: parsed.data.date,
+        tags: parsed.data.tags,
+        images: parsed.data.images,
+        rating: parsed.data.rating,
+      },
+    });
+
+    revalidatePath("/journal");
+    revalidatePath(`/journal/${id}`);
+    revalidatePath("/notebook");
+    revalidatePath("/dashboard");
+    redirect(`/journal/${id}?saved=1`);
+  } catch (error) {
+    rethrowIfRedirect(error);
+    return {
+      status: "error",
+      message: dbActionError(error, "Could not update journal entry."),
+    };
   }
-
-  await prisma.dailyJournal.update({
-    where: { id },
-    data: {
-      title: parsed.data.title,
-      content: parsed.data.content,
-      date: parsed.data.date,
-      tags: parsed.data.tags,
-      images: parsed.data.images,
-      rating: parsed.data.rating,
-    },
-  });
-
-  revalidatePath("/journal");
-  revalidatePath(`/journal/${id}`);
-  revalidatePath("/notebook");
-  revalidatePath("/dashboard");
-  redirect(`/journal/${id}?saved=1`);
 }
 
 export async function deleteJournal(
@@ -115,16 +132,21 @@ export async function deleteJournal(
     return { error: "Missing journal id." };
   }
 
-  const result = await prisma.dailyJournal.deleteMany({
-    where: { id, userId: session.user.id },
-  });
+  try {
+    const result = await prisma.dailyJournal.deleteMany({
+      where: { id, userId: session.user.id },
+    });
 
-  if (result.count === 0) {
-    return { error: "Journal entry not found." };
+    if (result.count === 0) {
+      return { error: "Journal entry not found." };
+    }
+
+    revalidatePath("/journal");
+    revalidatePath("/notebook");
+    revalidatePath("/dashboard");
+    return undefined;
+  } catch (error) {
+    rethrowIfRedirect(error);
+    return { error: dbActionError(error, "Could not delete journal entry.") };
   }
-
-  revalidatePath("/journal");
-  revalidatePath("/notebook");
-  revalidatePath("/dashboard");
-  return undefined;
 }

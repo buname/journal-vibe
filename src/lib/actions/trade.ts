@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
+import { dbActionError, rethrowIfRedirect } from "@/lib/db-errors";
 import { prisma } from "@/lib/db";
 import { computeRValue, computeTradePnL } from "@/lib/trading/compute-pnl";
 import { resolvePointValue } from "@/lib/trading/instruments";
@@ -27,6 +28,7 @@ function formTradePayload(formData: FormData) {
     fees: String(formData.get("fees") ?? ""),
     session: String(formData.get("session") ?? ""),
     entryTime: String(formData.get("entryTime") ?? ""),
+    exitTime: String(formData.get("exitTime") ?? ""),
     notes: String(formData.get("notes") ?? ""),
     date: String(formData.get("date") ?? ""),
     tags: String(formData.get("tags") ?? ""),
@@ -77,31 +79,40 @@ export async function createTrade(
     parsed.data.entryTime,
   );
 
-  await prisma.tradeLog.create({
-    data: {
-      userId: session.user.id,
-      symbol: parsed.data.symbol,
-      direction: parsed.data.direction,
-      instrumentType: parsed.data.instrumentType,
-      pointValue: resolvedPointValue,
-      entryPrice: parsed.data.entryPrice,
-      exitPrice: parsed.data.exitPrice,
-      stopPrice: parsed.data.stopPrice,
-      rValue,
-      size: parsed.data.size,
-      fees: parsed.data.fees,
-      pnl,
-      session: resolvedSession,
-      entryTime: parsed.data.entryTime,
-      notes: parsed.data.notes,
-      date: parsed.data.date,
-      tags: parsed.data.tags,
-      images: parsed.data.images,
-    },
-  });
+  try {
+    const created = await prisma.tradeLog.create({
+      data: {
+        userId: session.user.id,
+        symbol: parsed.data.symbol,
+        direction: parsed.data.direction,
+        instrumentType: parsed.data.instrumentType,
+        pointValue: resolvedPointValue,
+        entryPrice: parsed.data.entryPrice,
+        exitPrice: parsed.data.exitPrice,
+        stopPrice: parsed.data.stopPrice,
+        rValue,
+        size: parsed.data.size,
+        fees: parsed.data.fees,
+        pnl,
+        session: resolvedSession,
+        entryTime: parsed.data.entryTime,
+        exitTime: parsed.data.exitTime,
+        notes: parsed.data.notes,
+        date: parsed.data.date,
+        tags: parsed.data.tags,
+        images: parsed.data.images,
+      },
+    });
 
-  revalidateTradeSurfaces();
-  redirect("/trades?saved=1");
+    revalidateTradeSurfaces();
+    redirect(`/trades?saved=1&trade=${created.id}`);
+  } catch (error) {
+    rethrowIfRedirect(error);
+    return {
+      status: "error",
+      message: dbActionError(error, "Could not save trade."),
+    };
+  }
 }
 
 export async function updateTrade(
@@ -126,51 +137,60 @@ export async function updateTrade(
     return { status: "error", message };
   }
 
-  const existing = await prisma.tradeLog.findFirst({
-    where: { id, userId: session.user.id },
-  });
+  try {
+    const existing = await prisma.tradeLog.findFirst({
+      where: { id, userId: session.user.id },
+    });
 
-  if (!existing) {
-    return { status: "error", message: "Trade not found." };
+    if (!existing) {
+      return { status: "error", message: "Trade not found." };
+    }
+
+    const resolvedPointValue = resolvePointValue(
+      parsed.data.instrumentType,
+      parsed.data.pointValue,
+    );
+    const pnl = computeTradePnL({ ...parsed.data, pointValue: resolvedPointValue });
+    const rValue = computeRValue(parsed.data);
+    const resolvedSession = resolveSession(
+      parsed.data.session,
+      parsed.data.entryTime,
+    );
+
+    await prisma.tradeLog.update({
+      where: { id },
+      data: {
+        symbol: parsed.data.symbol,
+        direction: parsed.data.direction,
+        instrumentType: parsed.data.instrumentType,
+        pointValue: resolvedPointValue,
+        entryPrice: parsed.data.entryPrice,
+        exitPrice: parsed.data.exitPrice,
+        stopPrice: parsed.data.stopPrice,
+        rValue,
+        size: parsed.data.size,
+        fees: parsed.data.fees,
+        pnl,
+        session: resolvedSession,
+        entryTime: parsed.data.entryTime,
+        exitTime: parsed.data.exitTime,
+        notes: parsed.data.notes,
+        date: parsed.data.date,
+        tags: parsed.data.tags,
+        images: parsed.data.images,
+      },
+    });
+
+    revalidateTradeSurfaces();
+    revalidatePath(`/trades/${id}`);
+    redirect(`/trades/${id}?saved=1`);
+  } catch (error) {
+    rethrowIfRedirect(error);
+    return {
+      status: "error",
+      message: dbActionError(error, "Could not update trade."),
+    };
   }
-
-  const resolvedPointValue = resolvePointValue(
-    parsed.data.instrumentType,
-    parsed.data.pointValue,
-  );
-  const pnl = computeTradePnL({ ...parsed.data, pointValue: resolvedPointValue });
-  const rValue = computeRValue(parsed.data);
-  const resolvedSession = resolveSession(
-    parsed.data.session,
-    parsed.data.entryTime,
-  );
-
-  await prisma.tradeLog.update({
-    where: { id },
-    data: {
-      symbol: parsed.data.symbol,
-      direction: parsed.data.direction,
-      instrumentType: parsed.data.instrumentType,
-      pointValue: resolvedPointValue,
-      entryPrice: parsed.data.entryPrice,
-      exitPrice: parsed.data.exitPrice,
-      stopPrice: parsed.data.stopPrice,
-      rValue,
-      size: parsed.data.size,
-      fees: parsed.data.fees,
-      pnl,
-      session: resolvedSession,
-      entryTime: parsed.data.entryTime,
-      notes: parsed.data.notes,
-      date: parsed.data.date,
-      tags: parsed.data.tags,
-      images: parsed.data.images,
-    },
-  });
-
-  revalidateTradeSurfaces();
-  revalidatePath(`/trades/${id}`);
-  redirect(`/trades/${id}?saved=1`);
 }
 
 export async function deleteTrade(
@@ -186,14 +206,19 @@ export async function deleteTrade(
     return { error: "Missing trade id." };
   }
 
-  const result = await prisma.tradeLog.deleteMany({
-    where: { id, userId: session.user.id },
-  });
+  try {
+    const result = await prisma.tradeLog.deleteMany({
+      where: { id, userId: session.user.id },
+    });
 
-  if (result.count === 0) {
-    return { error: "Trade not found." };
+    if (result.count === 0) {
+      return { error: "Trade not found." };
+    }
+
+    revalidateTradeSurfaces();
+    return undefined;
+  } catch (error) {
+    rethrowIfRedirect(error);
+    return { error: dbActionError(error, "Could not delete trade.") };
   }
-
-  revalidateTradeSurfaces();
-  return undefined;
 }

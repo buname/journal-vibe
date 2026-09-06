@@ -1,14 +1,7 @@
 import type { BacktestNote, DailyJournal, TradeLog } from "@prisma/client";
 
+import { excerptFromContent } from "@/lib/journal/excerpt";
 import type { NotebookTimelineItem } from "@/types/notebook";
-
-function excerptFromContent(content: string, max = 180): string {
-  const singleLine = content.replace(/\s+/g, " ").trim();
-  if (singleLine.length <= max) {
-    return singleLine;
-  }
-  return `${singleLine.slice(0, max - 1)}…`;
-}
 
 export function buildNotebookTimeline(
   journals: DailyJournal[],

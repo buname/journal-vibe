@@ -2,7 +2,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
-import { JournalEntryCard } from "@/components/journal/journal-entry-card";
+import { DbOfflineBanner } from "@/components/layout/db-offline-banner";
+import { JournalEntryList } from "@/components/journal/journal-entry-list";
+import { JournalStatsBento } from "@/components/journal/journal-stats-bento";
 import { WeeklyScoreCard } from "@/components/journal/weekly-score-card";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +15,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { prisma } from "@/lib/db";
+import { excerptFromContent } from "@/lib/journal/excerpt";
+import {
+  computeJournalStats,
+} from "@/lib/journal/stats";
 import { buildWeeklySummaries } from "@/lib/journal/weekly-score";
 
 export default async function JournalListPage() {
@@ -21,10 +27,17 @@ export default async function JournalListPage() {
     redirect("/login");
   }
 
-  const entries = await prisma.dailyJournal.findMany({
-    where: { userId: session.user.id },
-    orderBy: { date: "desc" },
-  });
+  let entries: Awaited<ReturnType<typeof prisma.dailyJournal.findMany>> = [];
+  let dbOffline = false;
+
+  try {
+    entries = await prisma.dailyJournal.findMany({
+      where: { userId: session.user.id },
+      orderBy: { date: "desc" },
+    });
+  } catch {
+    dbOffline = true;
+  }
 
   const weeklySummaries = buildWeeklySummaries(
     entries.map((e) => ({
@@ -34,9 +47,21 @@ export default async function JournalListPage() {
       rating: e.rating,
     })),
   );
+  const [currentWeek, ...previousWeeks] = weeklySummaries;
+  const stats = computeJournalStats(entries);
+  const listEntries = entries.map((entry) => ({
+    id: entry.id,
+    title: entry.title,
+    date: entry.date,
+    rating: entry.rating,
+    tags: entry.tags,
+    images: entry.images,
+    excerpt: excerptFromContent(entry.content, 140),
+  }));
 
   return (
     <div className="space-y-8">
+      {dbOffline ? <DbOfflineBanner /> : null}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Daily journal</h1>
@@ -54,7 +79,7 @@ export default async function JournalListPage() {
         </div>
       </div>
 
-      {entries.length === 0 ? (
+      {dbOffline ? null : entries.length === 0 ? (
         <Card>
           <CardHeader>
             <CardTitle>No entries yet</CardTitle>
@@ -70,36 +95,27 @@ export default async function JournalListPage() {
         </Card>
       ) : (
         <>
-          {weeklySummaries.length > 0 && (
-            <div className="space-y-4">
-              <h2 className="text-lg font-semibold tracking-tight">
-                Weekly scores
-              </h2>
-              {weeklySummaries.map((summary) => (
-                <WeeklyScoreCard
-                  key={summary.weekStart.toISOString()}
-                  summary={summary}
-                />
-              ))}
-            </div>
-          )}
+          <JournalStatsBento stats={stats} />
 
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold tracking-tight">All entries</h2>
-            {entries.map((entry) => (
-              <JournalEntryCard
-                key={entry.id}
-                entry={{
-                  id: entry.id,
-                  title: entry.title,
-                  date: entry.date,
-                  rating: entry.rating,
-                  tags: entry.tags,
-                  images: entry.images,
-                }}
-              />
-            ))}
+            {currentWeek ? <WeeklyScoreCard summary={currentWeek} /> : null}
           </div>
+
+          {previousWeeks.length > 0 ? (
+            <div className="space-y-4">
+              <h2 className="text-lg font-semibold tracking-tight">Previous weeks</h2>
+              <div className="grid gap-4 md:grid-cols-2">
+                {previousWeeks.map((summary) => (
+                  <WeeklyScoreCard
+                    key={summary.weekStart.toISOString()}
+                    summary={summary}
+                  />
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          <JournalEntryList entries={listEntries} />
         </>
       )}
     </div>

@@ -1,0 +1,186 @@
+/* First-arrival opening — golden frame, drawn φ, paper splits like a book. */
+.site-open {
+  --paper: #f1f2ee;
+  --ink: #14161a;
+  --accent: #1f3df0;
+  --c-teal: #0aa885;
+  --c-amber: #f5901b;
+  --c-violet: #6d3ff0;
+  --c-coral: #ff4d3d;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  pointer-events: none;
+  overflow: hidden;
+  color-scheme: light;
+}
+
+html.is-opening {
+  overflow: hidden;
+}
+
+.site-open-leaf {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50.15%;
+  background: var(--paper);
+  background-image: linear-gradient(
+    180deg,
+    rgba(20, 22, 26, 0.03) 0%,
+    transparent 28%
+  );
+}
+.site-open-leaf.is-left {
+  left: 0;
+  border-right: 1px solid rgba(20, 22, 26, 0.16);
+  animation: open-leaf-l 0.9s var(--ease) 1.38s forwards;
+}
+.site-open-leaf.is-right {
+  right: 0;
+  animation: open-leaf-r 0.9s var(--ease) 1.38s forwards;
+}
+
+.site-open-core {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  animation: open-core-out 0.45s var(--ease) 1.22s forwards;
+}
+
+.site-open-frame {
+  position: relative;
+  width: min(22rem, 72vw);
+  aspect-ratio: 1.618 / 1;
+}
+
+.site-open-geom {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.site-open-geom .geom-outer,
+.site-open-geom .geom-square,
+.site-open-geom .geom-diag {
+  stroke: var(--ink);
+  stroke-linecap: square;
+}
+.site-open-geom .geom-outer {
+  stroke-dasharray: 5140;
+  stroke-dashoffset: 5140;
+  animation: geom-trace 0.7s var(--ease) 0.04s forwards;
+}
+.site-open-geom .geom-square {
+  stroke-dasharray: 976;
+  stroke-dashoffset: 976;
+  animation: geom-trace 0.45s var(--ease) 0.42s forwards;
+}
+.site-open-geom .geom-diag {
+  stroke: rgba(20, 22, 26, 0.28);
+  stroke-dasharray: 1378;
+  stroke-dashoffset: 1378;
+  animation: geom-trace 0.5s var(--ease) 0.62s forwards;
+}
+
+.site-open-phi {
+  position: absolute;
+  left: 50.5%;
+  top: 50%;
+  width: 22%;
+  height: auto;
+  display: block;
+  transform: translate(-50%, -50%);
+}
+.site-open-phi svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.site-open-phi .phi-stroke {
+  stroke: var(--ink);
+  stroke-dasharray: var(--len, 200);
+  stroke-dashoffset: var(--len, 200);
+  animation: phi-draw 0.85s var(--ease) 0.28s forwards;
+}
+
+.site-open-ticks {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.55rem;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 2px;
+  height: 4px;
+}
+.site-open-ticks i {
+  display: block;
+  height: 100%;
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: tick-in 0.4s var(--ease) forwards;
+}
+.site-open-ticks i:nth-child(1) {
+  background: var(--accent);
+  animation-delay: 0.78s;
+}
+.site-open-ticks i:nth-child(2) {
+  background: var(--c-teal);
+  animation-delay: 0.84s;
+}
+.site-open-ticks i:nth-child(3) {
+  background: var(--c-amber);
+  animation-delay: 0.9s;
+}
+.site-open-ticks i:nth-child(4) {
+  background: var(--c-violet);
+  animation-delay: 0.96s;
+}
+.site-open-ticks i:nth-child(5) {
+  background: var(--c-coral);
+  animation-delay: 1.02s;
+}
+
+@keyframes geom-trace {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes phi-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes tick-in {
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes open-core-out {
+  to {
+    opacity: 0;
+    filter: blur(8px);
+    transform: scale(0.96);
+  }
+}
+@keyframes open-leaf-l {
+  to {
+    transform: translateX(-101%);
+  }
+}
+@keyframes open-leaf-r {
+  to {
+    transform: translateX(101%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-open {
+    display: none;
+  }
+}

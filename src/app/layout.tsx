@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Source_Serif_4 } from "next/font/google";
+import { Geist, Geist_Mono, Instrument_Serif, Source_Serif_4 } from "next/font/google";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 import { auth } from "@/auth";
@@ -24,6 +24,13 @@ const sourceSerif = Source_Serif_4({
   weight: ["500", "600", "700"],
 });
 
+const instrument = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  variable: "--font-gate",
+});
+
 export const metadata: Metadata = {
   title: "Trading & Life Journal",
   description: "Personal trading and life notebook",
@@ -43,14 +50,14 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${sourceSerif.variable} min-h-dvh font-sans antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${sourceSerif.variable} ${instrument.variable} min-h-dvh font-sans antialiased`}
       >
         <AppProviders session={session}>
           <NuqsAdapter>
             <ThemeProvider
               attribute="class"
-              defaultTheme="system"
-              enableSystem
+              defaultTheme="light"
+              enableSystem={false}
               disableTransitionOnChange
             >
               {children}

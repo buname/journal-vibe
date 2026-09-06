@@ -1,5 +1,9 @@
 import Link from "next/link";
-import { Star, Trophy } from "lucide-react";
+import { Trophy } from "lucide-react";
+
+import {
+  DAY_RATING_EMOJIS,
+} from "@/components/journal/day-rating-slider";
 
 import {
   Card,
@@ -58,9 +62,13 @@ function DayCell({
         {dayLabel}
       </span>
       {hasRating ? (
-        <div className="flex items-center gap-0.5">
-          <Star className="size-3.5 text-yellow-400" fill="currentColor" strokeWidth={1.5} />
-          <span className="text-sm font-semibold">{rating}</span>
+        <div className="flex flex-col items-center gap-0.5">
+          <span className="text-base leading-none" aria-hidden>
+            {DAY_RATING_EMOJIS[(rating ?? 1) - 1]}
+          </span>
+          <span className="text-[10px] font-semibold tabular-nums text-muted-foreground">
+            {rating}/5
+          </span>
         </div>
       ) : (
         <span className="text-xs text-muted-foreground/40">—</span>
@@ -111,7 +119,7 @@ export function WeeklyScoreCard({ summary }: WeeklyScoreCardProps) {
         {summary.ratedCount > 0 && (
           <p className="mt-3 text-xs text-muted-foreground">
             {summary.ratedCount} rated {summary.ratedCount === 1 ? "day" : "days"} ·
-            avg {(summary.totalRating / summary.ratedCount).toFixed(1)} stars
+            avg {(summary.totalRating / summary.ratedCount).toFixed(1)}/5 mood
           </p>
         )}
       </CardContent>
