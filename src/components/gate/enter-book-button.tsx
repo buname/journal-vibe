@@ -26,18 +26,11 @@ export function EnterBookButton({
     );
   }
 
-  const handleEnter = async () => {
+  const handleEnter = () => {
     setLoading(true);
-    try {
-      const result = await signIn("local", {
-        enter: "1",
-        redirect: false,
-        callbackUrl: "/notebook",
-      });
-      window.location.assign(result?.url ?? "/notebook");
-    } catch {
+    void signIn("google", { callbackUrl: "/notebook" }).catch(() => {
       setLoading(false);
-    }
+    });
   };
 
   return (
@@ -45,9 +38,9 @@ export function EnterBookButton({
       type="button"
       className={cn(className)}
       disabled={loading}
-      onClick={() => void handleEnter()}
+      onClick={handleEnter}
     >
-      {loading ? "Opening…" : (label ?? "Sign in")}
+      {loading ? "Opening…" : (label ?? "Sign in with Google")}
     </Button>
   );
 }

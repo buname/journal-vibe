@@ -27,34 +27,38 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.AUTH_SECRET,
   providers: [
     ...authConfig.providers,
-    Credentials({
-      id: "local",
-      name: "Local",
-      credentials: {
-        enter: { type: "hidden" },
-      },
-      async authorize() {
-        const email = "local@journal.local";
-        try {
-          const user = await prisma.user.upsert({
-            where: { email },
-            create: { email, name: "Journal" },
-            update: {},
-          });
-          return {
-            id: user.id,
-            email: user.email ?? email,
-            name: user.name ?? "Journal",
-          };
-        } catch {
-          return {
-            id: "local-dev-user",
-            email,
-            name: "Journal",
-          };
-        }
-      },
-    }),
+    ...(process.env.NODE_ENV === "development"
+      ? [
+          Credentials({
+            id: "local",
+            name: "Local",
+            credentials: {
+              enter: { type: "hidden" },
+            },
+            async authorize() {
+              const email = "local@journal.local";
+              try {
+                const user = await prisma.user.upsert({
+                  where: { email },
+                  create: { email, name: "Journal" },
+                  update: {},
+                });
+                return {
+                  id: user.id,
+                  email: user.email ?? email,
+                  name: user.name ?? "Journal",
+                };
+              } catch {
+                return {
+                  id: "local-dev-user",
+                  email,
+                  name: "Journal",
+                };
+              }
+            },
+          }),
+        ]
+      : []),
   ],
   callbacks: {
     ...authConfig.callbacks,
