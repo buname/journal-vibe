@@ -172,12 +172,12 @@ export function PnlCalendar({
         </div>
       </div>
 
-      <div className="mx-auto w-full max-w-[min(100%,28rem)] overflow-hidden rounded-xl border border-border bg-card shadow-sm sm:max-w-[32rem]">
-        <div className="grid grid-cols-7 border-b border-border bg-muted/30 text-center text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+      <div className="mx-auto w-[min(100%,20rem)] overflow-hidden rounded-xl border border-border bg-card shadow-sm sm:w-[22rem]">
+        <div className="grid grid-cols-7 border-b border-border bg-muted/30 text-center text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">
           {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((label) => (
             <div
               key={label}
-              className="border-r border-border py-1.5 last:border-r-0"
+              className="border-r border-border py-1 last:border-r-0"
             >
               <span className="hidden sm:inline">{label}</span>
               <span className="sm:hidden">{label.charAt(0)}</span>
@@ -216,7 +216,7 @@ export function PnlCalendar({
                   whileTap={reduce ? undefined : { scale: 0.995 }}
                   transition={{ type: "spring", stiffness: 420, damping: 28 }}
                   className={cn(
-                    "relative flex aspect-square w-full flex-col rounded-none p-1 text-left transition-colors sm:p-1.5",
+                    "relative flex aspect-square h-auto w-full flex-col rounded-none p-0.5 text-left transition-colors sm:p-1",
                     !inMonth && "bg-muted/25 text-muted-foreground",
                     heatClass(pnl, maxAbs, hasTrades && inMonth),
                     !hasTrades && inMonth && "hover:bg-muted/35",
@@ -225,7 +225,7 @@ export function PnlCalendar({
                 >
                   <span
                     className={cn(
-                      "inline-flex size-5 items-center justify-center rounded-full text-[10px] font-semibold tabular-nums sm:text-[11px]",
+                      "inline-flex size-4 items-center justify-center rounded-full text-[9px] font-semibold tabular-nums sm:size-[1.125rem] sm:text-[10px]",
                       isToday(day)
                         ? "bg-primary text-primary-foreground"
                         : inMonth
@@ -245,14 +245,14 @@ export function PnlCalendar({
                     >
                       <p
                         className={cn(
-                          "text-[10px] font-bold leading-none tabular-nums sm:text-[11px]",
+                          "text-[9px] font-bold leading-none tabular-nums sm:text-[10px]",
                           pnl >= 0 ? "text-emerald-700" : "text-rose-700",
                         )}
                       >
                         {formatPnl(pnl)}
                       </p>
-                      <p className="text-[8px] leading-none text-muted-foreground sm:text-[9px]">
-                        {count} fill{count === 1 ? "" : "s"}
+                      <p className="text-[7px] leading-none text-muted-foreground sm:text-[8px]">
+                        {count}f
                       </p>
                     </motion.div>
                   ) : null}
