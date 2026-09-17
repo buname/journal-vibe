@@ -111,7 +111,7 @@ export function TradeListCard({
             </p>
             <div className="mt-2 flex items-center gap-2">
               <h3 className="text-xl font-bold tracking-tight">{trade.symbol}</h3>
-              <DirectionBadge direction={direction} />
+              <DirectionBadge direction={direction} size="sm" />
             </div>
           </div>
           <p
@@ -230,8 +230,9 @@ export function TradeInteractiveCard({
     try {
       return await toBlob(node, {
         cacheBust: true,
-        pixelRatio: 2,
+        pixelRatio: 4,
         backgroundColor: "#ffffff",
+        quality: 1,
       });
     } finally {
       setSharing(false);
@@ -349,17 +350,31 @@ export function TradeInteractiveCard({
   );
 }
 
-function DirectionBadge({ direction }: { direction: string }) {
+function DirectionBadge({
+  direction,
+  size = "md",
+}: {
+  direction: string;
+  size?: "sm" | "md" | "lg";
+}) {
   const isLong = direction === "LONG";
+  const iconClass =
+    size === "lg" ? "size-7 sm:size-8" : size === "sm" ? "size-4" : "size-5 sm:size-6";
+
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide",
-        isLong ? "bg-emerald-500/12 text-emerald-700" : "bg-rose-500/12 text-rose-700",
+        "inline-flex shrink-0 items-center justify-center",
+        isLong ? "text-emerald-600" : "text-rose-600",
       )}
+      aria-label={direction}
+      title={direction}
     >
-      {isLong ? <ArrowUpRight className="size-3" /> : <ArrowDownRight className="size-3" />}
-      {direction}
+      {isLong ? (
+        <ArrowUpRight className={iconClass} strokeWidth={2.5} />
+      ) : (
+        <ArrowDownRight className={iconClass} strokeWidth={2.5} />
+      )}
     </span>
   );
 }
@@ -409,11 +424,8 @@ function TradeCardMinimal({
             <h3 className={cn("font-bold tracking-tight", isHero ? "text-4xl" : "text-xl")}>
               {trade.symbol}
             </h3>
-            <DirectionBadge direction={direction} />
+            <DirectionBadge direction={direction} size={isHero ? "lg" : "md"} />
           </div>
-          <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-            Trade detail
-          </p>
         </div>
         <motion.p
           key={trade.pnl}
@@ -550,7 +562,7 @@ function TradeCardWithImage({
       >
         <header className="flex items-start justify-between gap-4 sm:gap-6">
           <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
               <h3
                 className={cn(
                   "font-bold tracking-tight text-foreground",
@@ -559,11 +571,11 @@ function TradeCardWithImage({
               >
                 {trade.symbol}
               </h3>
-              <DirectionBadge direction={direction} />
+              <DirectionBadge
+                direction={direction}
+                size={isLarge ? "md" : "lg"}
+              />
             </div>
-            <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-              Trade detail
-            </p>
           </div>
 
           <div className="shrink-0 text-right">
