@@ -2,8 +2,7 @@
 
 import { format, isSameMonth } from "date-fns";
 import { Eye, EyeOff } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -29,13 +28,7 @@ export function MonthlyPnlSummary({
   sessions: Session[];
   month: Date;
 }) {
-  const reduce = useReducedMotion();
-  const [mounted, setMounted] = useState(false);
   const [showPnl, setShowPnl] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const stats = useMemo(() => {
     const monthSessions = sessions.filter((session) =>
@@ -59,7 +52,7 @@ export function MonthlyPnlSummary({
     };
   }, [sessions, month]);
 
-  const body = (
+  return (
     <div className="space-y-4 border-b border-border/50 bg-gradient-to-r from-primary/[0.04] via-transparent to-transparent px-4 py-5 md:px-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
@@ -122,18 +115,5 @@ export function MonthlyPnlSummary({
         ))}
       </div>
     </div>
-  );
-
-  if (!mounted || reduce) return body;
-
-  return (
-    <motion.div
-      key={format(month, "yyyy-MM")}
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-    >
-      {body}
-    </motion.div>
   );
 }
