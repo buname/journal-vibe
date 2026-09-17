@@ -1,15 +1,30 @@
 export type Instrument = {
   symbol: string;
   label: string;
-  /** USD profit/loss per 1.0 price point, per contract. */
+  /**
+   * Dollar PnL per 1.0 price unit, per 1.0 of size.
+   * Futures: size = contracts. Forex/CFD (FundingPips): size = lots.
+   * PnL = (exit − entry) × pointValue × size − fees
+   */
   pointValue: number;
 };
 
-/** The micro futures we trade, with their per-point dollar values. */
+/**
+ * Micro futures + FundingPips FX/CFD.
+ *
+ * FundingPips (standard MT5 contract sizes):
+ * - EURUSD / GBPUSD: 100_000 → $10 per pip (0.0001) per 1.0 lot
+ * - XAUUSD: 100 → $1 gold move ≈ $100 per 1.0 lot
+ * - NDX100 (US100): 1 → $1 index point per 1.0 lot
+ */
 export const INSTRUMENTS: Instrument[] = [
   { symbol: "MNQ", label: "MNQ · Micro Nasdaq-100", pointValue: 2 },
   { symbol: "MES", label: "MES · Micro S&P 500", pointValue: 5 },
   { symbol: "MYM", label: "MYM · Micro Dow", pointValue: 0.5 },
+  { symbol: "XAUUSD", label: "XAUUSD · Gold (FundingPips)", pointValue: 100 },
+  { symbol: "GBPUSD", label: "GBPUSD · Cable (FundingPips)", pointValue: 100_000 },
+  { symbol: "EURUSD", label: "EURUSD · Euro (FundingPips)", pointValue: 100_000 },
+  { symbol: "NDX100", label: "NDX100 · Nasdaq CFD (FundingPips)", pointValue: 1 },
 ];
 
 export const OTHER_INSTRUMENT = "OTHER";

@@ -188,7 +188,9 @@ export function TradeForm(props: TradeFormProps) {
             ))}
           </ChoiceChipGroup>
           <p className="text-xs text-muted-foreground">
-            ${activePointValue} per point.
+            {["XAUUSD", "GBPUSD", "EURUSD", "NDX100"].includes(instrument)
+              ? `Size = lots. $${activePointValue.toLocaleString("en-US")} per 1.0 price move per lot.`
+              : `Size = contracts. $${activePointValue} per point per contract.`}
           </p>
         </div>
 
