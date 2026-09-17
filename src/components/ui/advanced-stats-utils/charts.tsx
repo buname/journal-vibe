@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   CartesianGrid,
   ComposedChart,
@@ -63,6 +63,11 @@ function EquityTooltip({ active, payload }: TooltipProps) {
 export function ClippedAreaChart({ className, data }: ClippedAreaChartProps) {
   const chartRef = useRef<HTMLDivElement>(null);
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const chartData = useMemo(
     () =>
@@ -132,6 +137,7 @@ export function ClippedAreaChart({ className, data }: ClippedAreaChartProps) {
       </div>
 
       <div ref={chartRef} className="relative h-[22rem] w-full">
+        {mounted ? (
         <ChartContainer
           config={chartConfig}
           className="h-full w-full [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border/50"
@@ -202,6 +208,7 @@ export function ClippedAreaChart({ className, data }: ClippedAreaChartProps) {
             />
           </ComposedChart>
         </ChartContainer>
+        ) : null}
       </div>
     </div>
   );

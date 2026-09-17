@@ -1,9 +1,6 @@
 "use client";
 
-import { useRef } from "react";
-
 import { ClippedAreaChart } from "@/components/ui/advanced-stats-utils/charts";
-import { TimelineAnimation } from "@/components/ui/advanced-stats-utils/timeline-animation";
 import { cn } from "@/lib/utils";
 import type {
   EquityCurvePoint,
@@ -92,25 +89,18 @@ export function TradingAdvancedStats({
   equityCurve,
   metrics,
 }: TradingAdvancedStatsProps) {
-  const timelineRef = useRef<HTMLDivElement>(null);
   const kpis = buildKpis(metrics);
 
   return (
-    <section ref={timelineRef} className="flex flex-col gap-6">
-      <TimelineAnimation
-        animationNum={1}
-        timelineRef={timelineRef}
-        className="rounded-3xl border border-border/80 bg-muted/30 p-6 lg:p-8"
-      >
+    <section className="flex flex-col gap-6">
+      <div className="rounded-3xl border border-border/80 bg-muted/30 p-6 lg:p-8">
         <ClippedAreaChart data={equityCurve} />
-      </TimelineAnimation>
+      </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
-        {kpis.map((kpi, index) => (
-          <TimelineAnimation
-            animationNum={2 + index}
+        {kpis.map((kpi) => (
+          <div
             key={kpi.label}
-            timelineRef={timelineRef}
             className={cn(
               "rounded-2xl border border-border/80 bg-card p-5 transition-colors",
               kpi.status === "up"
@@ -136,7 +126,7 @@ export function TradingAdvancedStats({
                 {kpi.change}
               </span>
             </div>
-          </TimelineAnimation>
+          </div>
         ))}
       </div>
     </section>
