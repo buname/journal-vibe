@@ -39,7 +39,7 @@ export interface CalendarEvent {
 }
 
 export interface CalendarData {
-  day: Date;
+  day: Date | string;
   events: CalendarEvent[];
 }
 
@@ -63,6 +63,9 @@ const colStartClasses = [
   "col-start-7",
 ];
 
+function toCalendarDay(value: Date | string): Date {
+  return value instanceof Date ? value : new Date(value);
+}
 function eventTone(pnl?: number) {
   if (pnl == null) return "bg-muted/50 text-foreground";
   if (pnl > 0) return "border-primary/20 bg-primary/8 text-foreground";
@@ -76,7 +79,10 @@ function formatPnl(value: number) {
 }
 
 function getDayData(day: Date, data: CalendarData[]) {
-  return data.filter((entry) => isSameDay(entry.day, day));
+  return data.filter((entry) => {
+    const entryDay = toCalendarDay(entry.day);
+    return !Number.isNaN(entryDay.getTime()) && isSameDay(entryDay, day);
+  });
 }
 
 function getDayNetPnl(day: Date, data: CalendarData[]) {
