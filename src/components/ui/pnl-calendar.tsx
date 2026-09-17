@@ -137,7 +137,7 @@ export function PnlCalendar({
             </motion.h3>
           </AnimatePresence>
           <p className="text-[11px] text-muted-foreground sm:text-xs">
-            Daily net PnL
+            Daily net PnL · compact
           </p>
         </div>
         <div className="inline-flex shrink-0 -space-x-px rounded-md shadow-sm">
@@ -200,26 +200,28 @@ export function PnlCalendar({
                 : { opacity: 0, x: direction === 0 ? 0 : direction > 0 ? -28 : 28 }
             }
             transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            className="grid grid-cols-7 gap-0 [&>button]:-mb-px [&>button]:-mr-px [&>button]:border [&>button]:border-border"
+            className="grid grid-cols-7 gap-0"
           >
             {days.map((day, index) => {
               const inMonth = isSameMonth(day, monthStart);
               const { pnl, count } = dayStats(day, data);
               const hasTrades = count > 0;
               const active = selected ? isSameDay(day, selected) : false;
+              const isLastCol = index % 7 === 6;
+              const isLastRow = index >= days.length - 7;
 
               return (
-                <motion.button
+                <button
                   key={day.toISOString()}
                   type="button"
                   onClick={() => setSelected(day)}
-                  whileTap={reduce ? undefined : { scale: 0.995 }}
-                  transition={{ type: "spring", stiffness: 420, damping: 28 }}
                   className={cn(
-                    "relative flex min-h-[3.6rem] flex-col rounded-none p-1.5 text-left transition-colors sm:min-h-[4.5rem] sm:p-2",
+                    "relative flex h-[2.75rem] flex-col rounded-none p-1 text-left sm:h-[3.25rem] sm:p-1.5",
+                    !isLastCol && "border-r border-border",
+                    !isLastRow && "border-b border-border",
                     !inMonth && "bg-muted/25 text-muted-foreground",
+                    inMonth && !hasTrades && "bg-card hover:bg-muted/35",
                     heatClass(pnl, maxAbs, hasTrades && inMonth),
-                    !hasTrades && inMonth && "hover:bg-muted/35",
                     active && "z-[1] ring-2 ring-inset ring-primary/50",
                   )}
                 >
@@ -256,7 +258,7 @@ export function PnlCalendar({
                       </p>
                     </motion.div>
                   ) : null}
-                </motion.button>
+                </button>
               );
             })}
           </motion.div>
