@@ -14,6 +14,7 @@ import {
   startOfWeek,
   subMonths,
 } from "date-fns";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import type { CalendarData } from "@/components/ui/fullscreen-calendar";
@@ -57,32 +58,29 @@ function formatPnl(value: number) {
 }
 
 function heatClass(pnl: number, maxAbs: number, hasTrades: boolean) {
-  if (!hasTrades || !pnl || maxAbs === 0) {
-    return "bg-background border-border/60";
-  }
+  if (!hasTrades) return "bg-background";
+  if (!pnl || maxAbs === 0) return "bg-muted/40";
   const ratio = Math.min(1, Math.abs(pnl) / maxAbs);
   if (pnl > 0) {
-    if (ratio > 0.66) return "bg-emerald-500/30 border-emerald-500/40";
-    if (ratio > 0.33) return "bg-emerald-500/18 border-emerald-500/30";
-    return "bg-emerald-500/10 border-emerald-500/22";
+    if (ratio > 0.66) return "bg-emerald-500/35";
+    if (ratio > 0.33) return "bg-emerald-500/22";
+    return "bg-emerald-500/12";
   }
-  if (ratio > 0.66) return "bg-rose-500/30 border-rose-500/40";
-  if (ratio > 0.33) return "bg-rose-500/18 border-rose-500/30";
-  return "bg-rose-500/10 border-rose-500/22";
+  if (ratio > 0.66) return "bg-rose-500/35";
+  if (ratio > 0.33) return "bg-rose-500/22";
+  return "bg-rose-500/12";
 }
 
-/**
- * Topstep-style daily PnL month calendar — compact heat cells that fit the screen.
- * Not an event scheduler.
- */
 export function PnlCalendar({
   data,
   month,
   onMonthChange,
   className,
 }: PnlCalendarProps) {
+  const reduce = useReducedMotion();
   const monthStart = startOfMonth(month);
   const [selected, setSelected] = useState<Date | null>(null);
+  const [direction, setDirection] = useState(0);
 
   const days = useMemo(
     () =>
@@ -103,16 +101,43 @@ export function PnlCalendar({
   }, [data]);
 
   const selectedStats = selected ? dayStats(selected, data) : null;
+  const monthKey = format(monthStart, "yyyy-MM");
+
+  function goPrev() {
+    setDirection(-1);
+    onMonthChange(subMonths(monthStart, 1));
+  }
+
+  function goNext() {
+    setDirection(1);
+    onMonthChange(addMonths(monthStart, 1));
+  }
+
+  function goToday() {
+    setDirection(0);
+    const now = new Date();
+    onMonthChange(startOfMonth(now));
+    setSelected(now);
+  }
 
   return (
     <div className={cn("space-y-3 p-3 sm:p-4", className)}>
       <div className="flex items-center justify-between gap-2">
-        <div className="min-w-0">
-          <h3 className="text-sm font-semibold tracking-tight sm:text-base">
-            {format(monthStart, "MMMM yyyy")}
-          </h3>
+        <div className="min-w-0 overflow-hidden">
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.h3
+              key={monthKey}
+              initial={reduce ? false : { opacity: 0, y: direction >= 0 ? 8 : -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={reduce ? undefined : { opacity: 0, y: direction >= 0 ? -8 : 8 }}
+              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              className="text-sm font-semibold tracking-tight sm:text-base"
+            >
+              {format(monthStart, "MMMM yyyy")}
+            </motion.h3>
+          </AnimatePresence>
           <p className="text-[11px] text-muted-foreground sm:text-xs">
-            Daily net PnL · Topstep-style heat map
+            Daily net PnL
           </p>
         </div>
         <div className="inline-flex shrink-0 -space-x-px rounded-md shadow-sm">
@@ -121,7 +146,7 @@ export function PnlCalendar({
             variant="outline"
             size="icon"
             className="size-8 rounded-none first:rounded-s-md"
-            onClick={() => onMonthChange(subMonths(monthStart, 1))}
+            onClick={goPrev}
             aria-label="Previous month"
           >
             <ChevronLeft className="size-3.5" />
@@ -130,11 +155,7 @@ export function PnlCalendar({
             type="button"
             variant="outline"
             className="h-8 rounded-none px-2.5 text-xs"
-            onClick={() => {
-              const now = new Date();
-              onMonthChange(startOfMonth(now));
-              setSelected(now);
-            }}
+            onClick={goToday}
           >
             Today
           </Button>
@@ -143,7 +164,7 @@ export function PnlCalendar({
             variant="outline"
             size="icon"
             className="size-8 rounded-none last:rounded-e-md"
-            onClick={() => onMonthChange(addMonths(monthStart, 1))}
+            onClick={goNext}
             aria-label="Next month"
           >
             <ChevronRight className="size-3.5" />
@@ -151,110 +172,155 @@ export function PnlCalendar({
         </div>
       </div>
 
-      <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-        {["S", "M", "T", "W", "T", "F", "S"].map((label, index) => (
-          <div key={`${label}-${index}`} className="py-0.5">
-            {label}
-          </div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-7 gap-1">
-        {days.map((day) => {
-          const inMonth = isSameMonth(day, monthStart);
-          const { pnl, count } = dayStats(day, data);
-          const hasTrades = count > 0;
-          const active = selected ? isSameDay(day, selected) : false;
-
-          return (
-            <button
-              key={day.toISOString()}
-              type="button"
-              onClick={() => setSelected(day)}
-              className={cn(
-                "flex aspect-[1/1.05] max-h-[4.75rem] flex-col rounded-md border p-1 text-left transition-colors sm:max-h-[5.25rem] sm:p-1.5",
-                !inMonth && "opacity-35",
-                heatClass(pnl, maxAbs, hasTrades),
-                !hasTrades && "hover:bg-muted/40",
-                active && "ring-2 ring-primary/45 ring-offset-1 ring-offset-background",
-                isToday(day) && !active && "border-primary/50",
-              )}
+      <div className="overflow-hidden rounded-xl border border-border/80 bg-card shadow-sm">
+        <div className="grid grid-cols-7 border-b border-border/70 bg-muted/30 text-center text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+          {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((label) => (
+            <div
+              key={label}
+              className="border-r border-border/60 py-2 last:border-r-0"
             >
-              <span
-                className={cn(
-                  "text-[10px] font-medium leading-none tabular-nums sm:text-[11px]",
-                  isToday(day)
-                    ? "flex size-5 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground"
-                    : "text-muted-foreground",
-                )}
-              >
-                {format(day, "d")}
-              </span>
+              <span className="hidden sm:inline">{label}</span>
+              <span className="sm:hidden">{label.charAt(0)}</span>
+            </div>
+          ))}
+        </div>
 
-              {hasTrades ? (
-                <div className="mt-auto space-y-0.5">
-                  <p
-                    className={cn(
-                      "text-[9px] font-bold leading-tight tabular-nums sm:text-[11px]",
-                      pnl >= 0 ? "text-emerald-700" : "text-rose-700",
-                    )}
-                  >
-                    {formatPnl(pnl)}
-                  </p>
-                  <p className="text-[9px] leading-none text-muted-foreground">
-                    {count} fill{count === 1 ? "" : "s"}
-                  </p>
-                </div>
-              ) : null}
-            </button>
-          );
-        })}
-      </div>
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={monthKey}
+            initial={
+              reduce
+                ? false
+                : { opacity: 0, x: direction === 0 ? 0 : direction > 0 ? 28 : -28 }
+            }
+            animate={{ opacity: 1, x: 0 }}
+            exit={
+              reduce
+                ? undefined
+                : { opacity: 0, x: direction === 0 ? 0 : direction > 0 ? -28 : 28 }
+            }
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            className="grid grid-cols-7"
+          >
+            {days.map((day, index) => {
+              const inMonth = isSameMonth(day, monthStart);
+              const { pnl, count } = dayStats(day, data);
+              const hasTrades = count > 0;
+              const active = selected ? isSameDay(day, selected) : false;
+              const col = index % 7;
+              const isLastCol = col === 6;
 
-      {selectedStats && selectedStats.count > 0 && selected ? (
-        <div className="rounded-lg border border-border/70 bg-muted/20 px-3 py-2.5">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <p className="text-xs font-semibold">
-              {format(selected, "EEE, MMM d")}
-            </p>
-            <p
-              className={cn(
-                "text-sm font-bold tabular-nums",
-                selectedStats.pnl >= 0 ? "text-emerald-600" : "text-rose-600",
-              )}
-            >
-              {formatPnl(selectedStats.pnl)}
-              {selectedStats.r !== 0 ? (
-                <span className="ml-2 text-xs font-semibold">
-                  {selectedStats.r >= 0 ? "+" : ""}
-                  {selectedStats.r.toFixed(2)}R
-                </span>
-              ) : null}
-            </p>
-          </div>
-          <ul className="mt-2 space-y-1">
-            {selectedStats.events.map((event) => (
-              <li
-                key={String(event.id)}
-                className="flex items-center justify-between gap-2 text-[11px]"
-              >
-                <span className="font-medium">{event.name}</span>
-                <span
+              return (
+                <motion.button
+                  key={day.toISOString()}
+                  type="button"
+                  onClick={() => setSelected(day)}
+                  whileTap={reduce ? undefined : { scale: 0.985 }}
+                  transition={{ type: "spring", stiffness: 420, damping: 28 }}
                   className={cn(
-                    "tabular-nums",
-                    (event.pnl ?? 0) >= 0 ? "text-emerald-600" : "text-rose-600",
+                    "relative flex min-h-[3.6rem] flex-col border-b border-border/70 p-1.5 text-left transition-colors sm:min-h-[4.5rem] sm:p-2",
+                    !isLastCol && "border-r border-border/70",
+                    !inMonth && "bg-muted/25 text-muted-foreground",
+                    heatClass(pnl, maxAbs, hasTrades && inMonth),
+                    !hasTrades && inMonth && "hover:bg-muted/35",
+                    active && "z-[1] ring-2 ring-inset ring-primary/50",
                   )}
                 >
-                  {event.time}
-                  {event.r != null
-                    ? ` · ${event.r >= 0 ? "+" : ""}${event.r}R`
-                    : ""}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
+                  <span
+                    className={cn(
+                      "inline-flex size-5 items-center justify-center rounded-full text-[10px] font-semibold tabular-nums sm:size-6 sm:text-[11px]",
+                      isToday(day)
+                        ? "bg-primary text-primary-foreground"
+                        : inMonth
+                          ? "text-foreground/80"
+                          : "text-muted-foreground",
+                    )}
+                  >
+                    {format(day, "d")}
+                  </span>
+
+                  {hasTrades && inMonth ? (
+                    <motion.div
+                      initial={reduce ? false : { opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.25, delay: 0.02 * (index % 7) }}
+                      className="mt-auto space-y-0.5"
+                    >
+                      <p
+                        className={cn(
+                          "text-[10px] font-bold leading-none tabular-nums sm:text-xs",
+                          pnl >= 0 ? "text-emerald-700" : "text-rose-700",
+                        )}
+                      >
+                        {formatPnl(pnl)}
+                      </p>
+                      <p className="text-[9px] leading-none text-muted-foreground sm:text-[10px]">
+                        {count} fill{count === 1 ? "" : "s"}
+                      </p>
+                    </motion.div>
+                  ) : null}
+                </motion.button>
+              );
+            })}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      <AnimatePresence mode="wait">
+        {selectedStats && selectedStats.count > 0 && selected ? (
+          <motion.div
+            key={selected.toISOString()}
+            initial={reduce ? false : { opacity: 0, y: 8, height: 0 }}
+            animate={{ opacity: 1, y: 0, height: "auto" }}
+            exit={reduce ? undefined : { opacity: 0, y: 6 }}
+            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            className="overflow-hidden rounded-xl border border-border/70 bg-muted/20 px-3 py-2.5"
+          >
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <p className="text-xs font-semibold">
+                {format(selected, "EEE, MMM d")}
+              </p>
+              <p
+                className={cn(
+                  "text-sm font-bold tabular-nums",
+                  selectedStats.pnl >= 0 ? "text-emerald-600" : "text-rose-600",
+                )}
+              >
+                {formatPnl(selectedStats.pnl)}
+                {selectedStats.r !== 0 ? (
+                  <span className="ml-2 text-xs font-semibold">
+                    {selectedStats.r >= 0 ? "+" : ""}
+                    {selectedStats.r.toFixed(2)}R
+                  </span>
+                ) : null}
+              </p>
+            </div>
+            <ul className="mt-2 space-y-1">
+              {selectedStats.events.map((event) => (
+                <li
+                  key={String(event.id)}
+                  className="flex items-center justify-between gap-2 text-[11px]"
+                >
+                  <span className="font-medium">{event.name}</span>
+                  <span
+                    className={cn(
+                      "tabular-nums",
+                      (event.pnl ?? 0) >= 0
+                        ? "text-emerald-600"
+                        : "text-rose-600",
+                    )}
+                  >
+                    {event.time}
+                    {event.r != null
+                      ? ` · ${event.r >= 0 ? "+" : ""}${event.r}R`
+                      : ""}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 }
