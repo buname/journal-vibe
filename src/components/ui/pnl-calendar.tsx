@@ -200,27 +200,23 @@ export function PnlCalendar({
                 : { opacity: 0, x: direction === 0 ? 0 : direction > 0 ? -28 : 28 }
             }
             transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            className="grid grid-cols-7 gap-0"
+            className="grid grid-cols-7 gap-0 [&>button]:-mb-px [&>button]:-mr-px [&>button]:border [&>button]:border-border"
           >
             {days.map((day, index) => {
               const inMonth = isSameMonth(day, monthStart);
               const { pnl, count } = dayStats(day, data);
               const hasTrades = count > 0;
               const active = selected ? isSameDay(day, selected) : false;
-              const isLastCol = index % 7 === 6;
-              const isLastRow = index >= days.length - 7;
 
               return (
                 <motion.button
                   key={day.toISOString()}
                   type="button"
                   onClick={() => setSelected(day)}
-                  whileTap={reduce ? undefined : { scale: 0.99 }}
+                  whileTap={reduce ? undefined : { scale: 0.995 }}
                   transition={{ type: "spring", stiffness: 420, damping: 28 }}
                   className={cn(
                     "relative flex min-h-[3.6rem] flex-col rounded-none p-1.5 text-left transition-colors sm:min-h-[4.5rem] sm:p-2",
-                    !isLastCol && "border-r border-border",
-                    !isLastRow && "border-b border-border",
                     !inMonth && "bg-muted/25 text-muted-foreground",
                     heatClass(pnl, maxAbs, hasTrades && inMonth),
                     !hasTrades && inMonth && "hover:bg-muted/35",
