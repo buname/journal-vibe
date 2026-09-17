@@ -14,14 +14,14 @@ type TimelineAnimationProps = {
   animationNum: number;
   children: ReactNode;
   className?: string;
-  timelineRef: RefObject<HTMLElement | null>;
+  /** Kept for API compat — viewport is used as observer root. */
+  timelineRef?: RefObject<HTMLElement | null>;
 };
 
 export function TimelineAnimation({
   animationNum,
   children,
   className,
-  timelineRef,
 }: TimelineAnimationProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -31,22 +31,32 @@ export function TimelineAnimation({
     const el = ref.current;
     if (!el) return;
 
+    // Always observe against the viewport. Using a non-scrolling parent as
+    // root left cards stuck at opacity 0 (blank dashboard).
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry?.isIntersecting) {
           setVisible(true);
+          observer.disconnect();
         }
       },
       {
-        root: timelineRef.current,
-        threshold: 0.15,
-        rootMargin: "-24px 0px",
+        threshold: 0.05,
+        rootMargin: "0px 0px -8px 0px",
       },
     );
 
     observer.observe(el);
+
+    // If already on screen (e.g. above the fold), show immediately.
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      setVisible(true);
+      observer.disconnect();
+    }
+
     return () => observer.disconnect();
-  }, [timelineRef]);
+  }, []);
 
   if (prefersReducedMotion) {
     return <div className={className}>{children}</div>;

@@ -452,7 +452,8 @@ export function FullScreenCalendar({
                   (isEqual(day, selectedDay) || isToday(day)) && "font-semibold",
                   isTrading
                     ? cn(
-                        "flex min-h-[3.5rem] flex-col rounded-lg border px-1.5 py-1.5",
+                        "flex min-h-[2.75rem] flex-col rounded-lg border px-1.5 py-1.5",
+                        dayHasPnl(day, data) && "min-h-[3.75rem]",
                         tradingHeatClass(getDayNetPnl(day, data), maxAbsPnl),
                       )
                     : "flex h-14 flex-col border-b border-r px-3 py-2 hover:bg-muted focus:z-10",
