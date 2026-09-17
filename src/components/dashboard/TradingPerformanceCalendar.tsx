@@ -3,11 +3,10 @@
 import { useMemo, useState } from "react";
 
 import type { CalendarData } from "@/components/ui/fullscreen-calendar";
-import { FullScreenCalendar } from "@/components/ui/fullscreen-calendar";
 import { MonthlyPnlSummary } from "@/components/ui/monthly-pnl-summary";
+import { PnlCalendar } from "@/components/ui/pnl-calendar";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
@@ -36,21 +35,18 @@ export function TradingPerformanceCalendar({
 
   return (
     <Card className="overflow-hidden border-border/80 shadow-sm">
-      <CardHeader className="border-b border-border/60 bg-muted/20 pb-4">
-        <CardTitle className="text-xl">Performance calendar</CardTitle>
-        <CardDescription>
-          Daily PnL heat-map — tap the eye to reveal monthly totals.
+      <CardHeader className="border-b border-border/60 bg-muted/20 py-4">
+        <CardTitle className="text-base sm:text-lg">Performance calendar</CardTitle>
+        <CardDescription className="text-xs">
+          Topstep-style daily PnL heat map — tap a day for fills.
         </CardDescription>
       </CardHeader>
       <MonthlyPnlSummary sessions={sessions} month={calendarMonth} />
-      <CardContent className="p-0">
-        <FullScreenCalendar
-          data={data}
-          readOnly
-          variant="trading"
-          onMonthChange={setCalendarMonth}
-        />
-      </CardContent>
+      <PnlCalendar
+        data={data}
+        month={calendarMonth}
+        onMonthChange={setCalendarMonth}
+      />
     </Card>
   );
 }
