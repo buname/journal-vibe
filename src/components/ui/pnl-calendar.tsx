@@ -121,8 +121,8 @@ export function PnlCalendar({
   }
 
   return (
-    <div className={cn("space-y-3 p-2 sm:p-3", className)}>
-      <div className="flex items-center justify-between gap-2 px-1">
+    <div className={cn("space-y-3 p-3 sm:p-4", className)}>
+      <div className="flex items-center justify-between gap-2">
         <div className="min-w-0 overflow-hidden">
           <AnimatePresence mode="wait" initial={false}>
             <motion.h3
@@ -131,7 +131,7 @@ export function PnlCalendar({
               animate={{ opacity: 1, y: 0 }}
               exit={reduce ? undefined : { opacity: 0, y: direction >= 0 ? -8 : 8 }}
               transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-              className="text-base font-semibold tracking-tight sm:text-lg"
+              className="text-sm font-semibold tracking-tight sm:text-base"
             >
               {format(monthStart, "MMMM yyyy")}
             </motion.h3>
@@ -172,12 +172,12 @@ export function PnlCalendar({
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+      <div className="mx-auto w-full max-w-[min(100%,28rem)] overflow-hidden rounded-xl border border-border bg-card shadow-sm sm:max-w-[32rem]">
         <div className="grid grid-cols-7 border-b border-border bg-muted/30 text-center text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
           {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((label) => (
             <div
               key={label}
-              className="border-r border-border py-2 last:border-r-0"
+              className="border-r border-border py-1.5 last:border-r-0"
             >
               <span className="hidden sm:inline">{label}</span>
               <span className="sm:hidden">{label.charAt(0)}</span>
@@ -216,7 +216,7 @@ export function PnlCalendar({
                   whileTap={reduce ? undefined : { scale: 0.995 }}
                   transition={{ type: "spring", stiffness: 420, damping: 28 }}
                   className={cn(
-                    "relative flex aspect-square w-full flex-col rounded-none p-2 text-left transition-colors sm:p-2.5",
+                    "relative flex aspect-square w-full flex-col rounded-none p-1 text-left transition-colors sm:p-1.5",
                     !inMonth && "bg-muted/25 text-muted-foreground",
                     heatClass(pnl, maxAbs, hasTrades && inMonth),
                     !hasTrades && inMonth && "hover:bg-muted/35",
@@ -225,7 +225,7 @@ export function PnlCalendar({
                 >
                   <span
                     className={cn(
-                      "inline-flex size-6 items-center justify-center rounded-full text-[11px] font-semibold tabular-nums sm:size-7 sm:text-xs",
+                      "inline-flex size-5 items-center justify-center rounded-full text-[10px] font-semibold tabular-nums sm:text-[11px]",
                       isToday(day)
                         ? "bg-primary text-primary-foreground"
                         : inMonth
@@ -241,17 +241,17 @@ export function PnlCalendar({
                       initial={reduce ? false : { opacity: 0, y: 4 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.25, delay: 0.02 * (index % 7) }}
-                      className="mt-auto space-y-1"
+                      className="mt-auto space-y-0.5"
                     >
                       <p
                         className={cn(
-                          "text-xs font-bold leading-none tabular-nums sm:text-sm",
+                          "text-[10px] font-bold leading-none tabular-nums sm:text-[11px]",
                           pnl >= 0 ? "text-emerald-700" : "text-rose-700",
                         )}
                       >
                         {formatPnl(pnl)}
                       </p>
-                      <p className="text-[10px] leading-none text-muted-foreground sm:text-[11px]">
+                      <p className="text-[8px] leading-none text-muted-foreground sm:text-[9px]">
                         {count} fill{count === 1 ? "" : "s"}
                       </p>
                     </motion.div>
