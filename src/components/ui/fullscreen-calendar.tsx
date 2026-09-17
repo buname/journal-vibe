@@ -138,7 +138,9 @@ export function FullScreenCalendar({
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const isTrading = variant === "trading";
   const maxAbsPnl = React.useMemo(() => getMaxAbsPnl(data), [data]);
-  const desktopDayMinHeight = isTrading ? "min-h-[6.5rem]" : "min-h-[7.5rem]";
+  const desktopDayMinHeight = isTrading ? "min-h-0" : "min-h-[7.5rem]";
+  const tradingDayMinHeight = (day: Date) =>
+    dayHasPnl(day, data) ? "min-h-[5.25rem]" : "min-h-[2.35rem]";
 
   const days = eachDayOfInterval({
     start: startOfWeek(firstDayCurrentMonth),
@@ -385,7 +387,7 @@ export function FullScreenCalendar({
                       ? cn(
                           "rounded-xl border transition-colors hover:brightness-[1.02]",
                           tradingHeatClass(getDayNetPnl(day, data), maxAbsPnl),
-                          desktopDayMinHeight,
+                          tradingDayMinHeight(day),
                         )
                       : cn(
                           "border-b border-r hover:bg-muted",
