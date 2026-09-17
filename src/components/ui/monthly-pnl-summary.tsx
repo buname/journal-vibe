@@ -49,25 +49,12 @@ export function MonthlyPnlSummary({
       monthSessions.map((session) => format(new Date(session.date), "yyyy-MM-dd")),
     ).size;
 
-    const dailyMap = new Map<string, number>();
-    for (const session of monthSessions) {
-      const key = format(new Date(session.date), "yyyy-MM-dd");
-      dailyMap.set(key, (dailyMap.get(key) ?? 0) + (session.pnl ?? 0));
-    }
-
-    const dailyBars = Array.from(dailyMap.entries())
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([, pnl]) => pnl);
-    const maxBar = Math.max(...dailyBars.map(Math.abs), 1);
-
     return {
       totalPnl,
       totalR,
       wins,
       losses,
       tradingDays,
-      dailyBars,
-      maxBar,
       fillCount: monthSessions.length,
     };
   }, [sessions, month]);
@@ -134,38 +121,6 @@ export function MonthlyPnlSummary({
           </div>
         ))}
       </div>
-
-      {showPnl && stats.dailyBars.length > 0 ? (
-        <div className="rounded-xl border border-border/50 bg-background/70 p-4">
-          <div className="flex h-16 items-end gap-1">
-            {stats.dailyBars.map((pnl, index) => (
-              <motion.div
-                key={`${format(month, "yyyy-MM")}-${index}`}
-                className="flex flex-1 flex-col justify-end"
-                title={formatPnl(pnl)}
-                initial={mounted && !reduce ? { scaleY: 0 } : false}
-                animate={{ scaleY: 1 }}
-                transition={{
-                  duration: 0.45,
-                  delay: index * 0.04,
-                  ease: [0.16, 1, 0.3, 1],
-                }}
-                style={{ transformOrigin: "bottom" }}
-              >
-                <div
-                  className={cn(
-                    "w-full rounded-sm",
-                    pnl >= 0 ? "bg-emerald-500/75" : "bg-rose-500/65",
-                  )}
-                  style={{
-                    height: `${Math.max(14, (Math.abs(pnl) / stats.maxBar) * 100)}%`,
-                  }}
-                />
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 
