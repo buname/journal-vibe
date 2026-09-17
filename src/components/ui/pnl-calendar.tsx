@@ -172,12 +172,12 @@ export function PnlCalendar({
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-border/80 bg-card shadow-sm">
-        <div className="grid grid-cols-7 border-b border-border/70 bg-muted/30 text-center text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+        <div className="grid grid-cols-7 border-b border-border bg-muted/30 text-center text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
           {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((label) => (
             <div
               key={label}
-              className="border-r border-border/60 py-2 last:border-r-0"
+              className="border-r border-border py-2 last:border-r-0"
             >
               <span className="hidden sm:inline">{label}</span>
               <span className="sm:hidden">{label.charAt(0)}</span>
@@ -200,26 +200,27 @@ export function PnlCalendar({
                 : { opacity: 0, x: direction === 0 ? 0 : direction > 0 ? -28 : 28 }
             }
             transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            className="grid grid-cols-7"
+            className="grid grid-cols-7 gap-0"
           >
             {days.map((day, index) => {
               const inMonth = isSameMonth(day, monthStart);
               const { pnl, count } = dayStats(day, data);
               const hasTrades = count > 0;
               const active = selected ? isSameDay(day, selected) : false;
-              const col = index % 7;
-              const isLastCol = col === 6;
+              const isLastCol = index % 7 === 6;
+              const isLastRow = index >= days.length - 7;
 
               return (
                 <motion.button
                   key={day.toISOString()}
                   type="button"
                   onClick={() => setSelected(day)}
-                  whileTap={reduce ? undefined : { scale: 0.985 }}
+                  whileTap={reduce ? undefined : { scale: 0.99 }}
                   transition={{ type: "spring", stiffness: 420, damping: 28 }}
                   className={cn(
-                    "relative flex min-h-[3.6rem] flex-col border-b border-border/70 p-1.5 text-left transition-colors sm:min-h-[4.5rem] sm:p-2",
-                    !isLastCol && "border-r border-border/70",
+                    "relative flex min-h-[3.6rem] flex-col rounded-none p-1.5 text-left transition-colors sm:min-h-[4.5rem] sm:p-2",
+                    !isLastCol && "border-r border-border",
+                    !isLastRow && "border-b border-border",
                     !inMonth && "bg-muted/25 text-muted-foreground",
                     heatClass(pnl, maxAbs, hasTrades && inMonth),
                     !hasTrades && inMonth && "hover:bg-muted/35",
