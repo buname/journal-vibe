@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { signInWithGoogle } from "@/lib/google-sign-in";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -28,7 +28,7 @@ export function EnterBookButton({
 
   const handleEnter = () => {
     setLoading(true);
-    void signIn("google", { callbackUrl: "/notebook" }).catch(() => {
+    void signInWithGoogle("/notebook").catch(() => {
       setLoading(false);
     });
   };

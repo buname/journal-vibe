@@ -8,7 +8,7 @@ import {
 } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { signInWithGoogle } from "@/lib/google-sign-in";
 
 import { cn } from "@/lib/utils";
 
@@ -67,7 +67,7 @@ export function Component({
   const handleGoogle = () => {
     setError(null);
     setGoogleLoading(true);
-    void signIn("google", { callbackUrl }).catch(() => {
+    void signInWithGoogle(callbackUrl).catch(() => {
       setError(
         "Google sign-in failed. Check OAuth redirect URIs for this domain.",
       );

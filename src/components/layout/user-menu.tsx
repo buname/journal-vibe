@@ -1,7 +1,9 @@
 "use client";
 
-import { LogOut } from "lucide-react";
+import { LogOut, RefreshCw } from "lucide-react";
 import { signOut } from "next-auth/react";
+
+import { switchGoogleAccount } from "@/lib/google-sign-in";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -70,6 +72,15 @@ export function UserMenu({ user }: UserMenuProps) {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={() => {
+            void switchGoogleAccount("/notebook");
+          }}
+        >
+          <RefreshCw className="mr-2 h-4 w-4" />
+          Switch Google account
+        </DropdownMenuItem>
         <DropdownMenuItem
           className="cursor-pointer"
           onClick={() => {

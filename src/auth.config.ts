@@ -14,6 +14,7 @@ export const authConfig = {
       allowDangerousEmailAccountLinking: true,
       authorization: {
         params: {
+          // Force the Google account chooser so each visitor picks THEIR account
           prompt: "select_account",
         },
       },
