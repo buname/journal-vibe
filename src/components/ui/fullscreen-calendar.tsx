@@ -138,7 +138,7 @@ export function FullScreenCalendar({
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const isTrading = variant === "trading";
   const maxAbsPnl = React.useMemo(() => getMaxAbsPnl(data), [data]);
-  const desktopDayMinHeight = isTrading ? "min-h-[10.5rem]" : "min-h-[7.5rem]";
+  const desktopDayMinHeight = isTrading ? "min-h-[6.5rem]" : "min-h-[7.5rem]";
 
   const days = eachDayOfInterval({
     start: startOfWeek(firstDayCurrentMonth),
@@ -198,13 +198,14 @@ export function FullScreenCalendar({
     }
 
     return dayData.map((entry) => (
-      <div key={entry.day.toString()} className="space-y-1.5">
+      <div key={entry.day.toString()} className={cn("space-y-1.5", isTrading && "space-y-1")}>
         {entry.events.slice(0, 2).map((event) => (
           <div
             key={event.id}
             className={cn(
               "flex flex-col items-start gap-1 rounded-lg border p-2.5 text-xs leading-tight w-full",
               eventTone(event.pnl),
+              isTrading && "gap-0.5 rounded-md p-1.5 text-[10px]",
             )}
           >
             <p className="font-medium leading-none">{event.name}</p>
@@ -234,22 +235,22 @@ export function FullScreenCalendar({
 
   return (
     <div className={cn("flex flex-1 flex-col", className)}>
-      <div className="flex flex-col space-y-4 p-4 md:flex-row md:items-center md:justify-between md:space-y-0 lg:flex-none">
+      <div className={cn("flex flex-col space-y-4 p-4 md:flex-row md:items-center md:justify-between md:space-y-0 lg:flex-none", isTrading && "space-y-2 p-3 md:p-3")}>
         <div className="flex flex-auto">
           <div className="flex items-center gap-4">
-            <div className="hidden w-20 flex-col items-center justify-center rounded-lg border bg-muted p-0.5 md:flex">
+            <div className={cn("hidden w-20 flex-col items-center justify-center rounded-lg border bg-muted p-0.5 md:flex", isTrading && "w-16")}>
               <h1 className="p-1 text-xs uppercase text-muted-foreground">
                 {format(today, "MMM")}
               </h1>
-              <div className="flex w-full items-center justify-center rounded-lg border bg-background p-0.5 text-lg font-bold">
+              <div className={cn("flex w-full items-center justify-center rounded-lg border bg-background p-0.5 text-lg font-bold", isTrading && "text-base")}>
                 <span>{format(today, "d")}</span>
               </div>
             </div>
             <div className="flex flex-col">
-              <h2 className="text-lg font-semibold text-foreground">
+              <h2 className={cn("text-lg font-semibold text-foreground", isTrading && "text-base")}>
                 {format(firstDayCurrentMonth, "MMMM, yyyy")}
               </h2>
-              <p className="text-sm text-muted-foreground">
+              <p className={cn("text-sm text-muted-foreground", isTrading && "text-xs")}>
                 {format(firstDayCurrentMonth, "MMM d, yyyy")} -{" "}
                 {format(endOfMonth(firstDayCurrentMonth), "MMM d, yyyy")}
               </p>
@@ -308,12 +309,12 @@ export function FullScreenCalendar({
         </div>
       </div>
 
-      <div className={cn("lg:flex lg:flex-col", isTrading && "px-1.5 pb-2")}>
+      <div className={cn("lg:flex lg:flex-col", isTrading && "px-1 pb-1.5")}>
         <div
           className={cn(
             "grid grid-cols-7 text-center text-xs font-semibold leading-6 lg:flex-none",
             isTrading
-              ? "gap-x-2 gap-y-1 px-0.5 pb-2 text-muted-foreground"
+              ? "gap-x-1 gap-y-0.5 px-0.5 pb-1 text-[10px] text-muted-foreground"
               : "border text-center",
           )}
         >
@@ -321,7 +322,7 @@ export function FullScreenCalendar({
             <div
               key={label}
               className={cn(
-                isTrading ? "py-2" : index < 6 ? "border-r py-2.5" : "py-2.5",
+                isTrading ? "py-1" : index < 6 ? "border-r py-2.5" : "py-2.5",
               )}
             >
               {label}
@@ -333,7 +334,7 @@ export function FullScreenCalendar({
           <div
             className={cn(
               "hidden w-full lg:grid lg:grid-cols-7 lg:auto-rows-min",
-              isTrading ? "gap-x-2 gap-y-2" : "border-x",
+              isTrading ? "gap-x-1 gap-y-1" : "border-x",
             )}
           >
             {days.map((day, dayIdx) =>
@@ -382,7 +383,7 @@ export function FullScreenCalendar({
                     "relative flex flex-col focus:z-10",
                     isTrading
                       ? cn(
-                          "rounded-2xl border transition-colors hover:brightness-[1.02]",
+                          "rounded-xl border transition-colors hover:brightness-[1.02]",
                           tradingHeatClass(getDayNetPnl(day, data), maxAbsPnl),
                           desktopDayMinHeight,
                         )
@@ -396,7 +397,7 @@ export function FullScreenCalendar({
                       "ring-2 ring-primary/35",
                   )}
                 >
-                  <header className="flex items-center justify-between gap-2 p-3">
+                  <header className={cn("flex items-center justify-between gap-2 p-3", isTrading && "gap-1 p-1.5")}>
                     <button
                       type="button"
                       className={cn(
@@ -412,13 +413,14 @@ export function FullScreenCalendar({
                         isToday(day) && !isEqual(day, selectedDay) && "ring-1 ring-primary/40",
                         (isEqual(day, selectedDay) || isToday(day)) && "font-semibold",
                         "flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs hover:border",
+                        isTrading && "h-6 w-6 text-[10px]",
                       )}
                     >
                       <time dateTime={format(day, "yyyy-MM-dd")}>{format(day, "d")}</time>
                     </button>
                     {renderDayPnl(day)}
                   </header>
-                  <div className="flex-1 px-3 pb-3 pt-0">{renderDayEvents(day)}</div>
+                  <div className={cn("flex-1 px-3 pb-3 pt-0", isTrading && "px-1.5 pb-1.5")}>{renderDayEvents(day)}</div>
                 </div>
               ),
             )}
@@ -427,7 +429,7 @@ export function FullScreenCalendar({
           <div
             className={cn(
               "isolate grid w-full auto-rows-min grid-cols-7 lg:hidden",
-              isTrading ? "gap-x-2 gap-y-2 border-0 px-0.5" : "border-x",
+              isTrading ? "gap-x-1 gap-y-1 border-0 px-0.5" : "border-x",
             )}
           >
             {days.map((day, dayIdx) => (
@@ -448,7 +450,7 @@ export function FullScreenCalendar({
                   (isEqual(day, selectedDay) || isToday(day)) && "font-semibold",
                   isTrading
                     ? cn(
-                        "flex min-h-[4.5rem] flex-col rounded-xl border px-2.5 py-2.5",
+                        "flex min-h-[3.5rem] flex-col rounded-lg border px-1.5 py-1.5",
                         tradingHeatClass(getDayNetPnl(day, data), maxAbsPnl),
                       )
                     : "flex h-14 flex-col border-b border-r px-3 py-2 hover:bg-muted focus:z-10",
