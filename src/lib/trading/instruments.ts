@@ -10,17 +10,14 @@ export type Instrument = {
 };
 
 /**
- * Micro futures + FundingPips FX/CFD.
+ * FundingPips FX/CFD instruments.
  *
- * FundingPips (standard MT5 contract sizes):
+ * Standard MT5 contract sizes (size = lots):
  * - EURUSD / GBPUSD: 100_000 → $10 per pip (0.0001) per 1.0 lot
  * - XAUUSD: 100 → $1 gold move ≈ $100 per 1.0 lot
  * - NDX100 (US100): 1 → $1 index point per 1.0 lot
  */
 export const INSTRUMENTS: Instrument[] = [
-  { symbol: "MNQ", label: "MNQ · Micro Nasdaq-100", pointValue: 2 },
-  { symbol: "MES", label: "MES · Micro S&P 500", pointValue: 5 },
-  { symbol: "MYM", label: "MYM · Micro Dow", pointValue: 0.5 },
   { symbol: "XAUUSD", label: "XAUUSD · Gold (FundingPips)", pointValue: 100 },
   { symbol: "GBPUSD", label: "GBPUSD · Cable (FundingPips)", pointValue: 100_000 },
   { symbol: "EURUSD", label: "EURUSD · Euro (FundingPips)", pointValue: 100_000 },
