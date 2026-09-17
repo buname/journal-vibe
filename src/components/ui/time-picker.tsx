@@ -262,10 +262,10 @@ export function TimePicker({
         </div>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" side="top" align="start">
-        <div className="flex-col gap-2 p-2">
-          <div className="flex h-56 grow">
-            <ScrollArea className="h-full flex-grow">
-              <div className="flex grow flex-col items-stretch overflow-y-auto pe-2 pb-48">
+        <div className="p-1.5">
+          <div className="flex h-56">
+            <ScrollArea className="h-full w-[4.5rem]">
+              <div className="flex flex-col items-stretch overflow-y-auto pb-48">
                 {hours.map((option) => (
                   <div
                     ref={option.value === hour ? hourRef : undefined}
@@ -282,8 +282,8 @@ export function TimePicker({
                 ))}
               </div>
             </ScrollArea>
-            <ScrollArea className="h-full flex-grow">
-              <div className="flex grow flex-col items-stretch overflow-y-auto pe-2 pb-48">
+            <ScrollArea className="h-full w-[4.5rem]">
+              <div className="flex flex-col items-stretch overflow-y-auto pb-48">
                 {minutes.map((option) => (
                   <div
                     ref={option.value === minute ? minuteRef : undefined}
@@ -301,8 +301,8 @@ export function TimePicker({
               </div>
             </ScrollArea>
             {use12HourFormat ? (
-              <ScrollArea className="h-full flex-grow">
-                <div className="flex grow flex-col items-stretch overflow-y-auto pe-2">
+              <ScrollArea className="h-full w-[4.5rem]">
+                <div className="flex flex-col items-stretch overflow-y-auto">
                   {ampmOptions.map((option) => (
                     <TimeItem
                       key={option.value}
@@ -340,14 +340,14 @@ function TimeItem({
     <Button
       type="button"
       variant="ghost"
-      className={cn("flex justify-center px-1 pe-2 ps-1", className)}
+      className={cn("flex justify-start gap-1 px-2", className)}
       onClick={() => onSelect(option)}
       disabled={disabled}
     >
-      <div className="w-4">
-        {selected ? <CheckIcon className="my-auto size-4" /> : null}
+      <div className="flex w-4 shrink-0 justify-center">
+        {selected ? <CheckIcon className="size-4" /> : null}
       </div>
-      <span className="ms-2">{option.label}</span>
+      <span className="tabular-nums">{option.label}</span>
     </Button>
   );
 }
