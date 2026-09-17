@@ -108,8 +108,6 @@ export function TradeForm(props: TradeFormProps) {
     props.mode === "edit" ? (props.trade.notes ?? "") : "",
   );
 
-  const activePointValue = findInstrument(instrument)?.pointValue ?? 1;
-
   const defaults =
     props.mode === "edit"
       ? {
@@ -187,11 +185,6 @@ export function TradeForm(props: TradeFormProps) {
               </ChoiceChip>
             ))}
           </ChoiceChipGroup>
-          <p className="text-xs text-muted-foreground">
-            Size = lots. $
-            {activePointValue.toLocaleString("en-US")} per 1.0 price move per
-            lot.
-          </p>
         </div>
 
         <div className="space-y-2">
