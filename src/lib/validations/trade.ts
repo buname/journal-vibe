@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { parseWallClockDateTime } from "@/lib/format";
 import {
   dayInputSchema,
   imagesFromJsonString,
@@ -30,6 +31,14 @@ const optionalString = z
     return trimmed.length > 0 ? trimmed : undefined;
   });
 
+const optionalWallClock = z
+  .string()
+  .optional()
+  .transform((v) => {
+    if (!v || v.trim() === "") return undefined;
+    return parseWallClockDateTime(v);
+  });
+
 export const tradeUpsertSchema = z.object({
   symbol: z
     .string()
@@ -49,22 +58,8 @@ export const tradeUpsertSchema = z.object({
     z.coerce.number().min(0, "Fees cannot be negative."),
   ),
   session: tradeSessionSchema.transform((v) => (v === "" ? undefined : v)),
-  entryTime: z
-    .string()
-    .optional()
-    .transform((v) => {
-      if (!v || v.trim() === "") return undefined;
-      const d = new Date(v);
-      return Number.isNaN(d.getTime()) ? undefined : d;
-    }),
-  exitTime: z
-    .string()
-    .optional()
-    .transform((v) => {
-      if (!v || v.trim() === "") return undefined;
-      const d = new Date(v);
-      return Number.isNaN(d.getTime()) ? undefined : d;
-    }),
+  entryTime: optionalWallClock,
+  exitTime: optionalWallClock,
   notes: z
     .string()
     .optional()

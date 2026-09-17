@@ -23,6 +23,7 @@ import {
 } from "@/components/trading/trade-card-utils";
 import { Spotlight } from "@/components/ui/spotlight";
 import { Button } from "@/components/ui/button";
+import { formatWallClockTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 type TradeInteractiveCardProps = {
@@ -148,8 +149,12 @@ export function TradeListCard({
                 {trade.rValue.toFixed(2)}R
               </span>
             ) : null}
-            {entryWhen ? <span>In {format(entryWhen, "HH:mm")}</span> : null}
-            {exitWhen ? <span>Out {format(exitWhen, "HH:mm")}</span> : null}
+            {entryWhen ? (
+              <span>In {formatWallClockTime(entryWhen)}</span>
+            ) : null}
+            {exitWhen ? (
+              <span>Out {formatWallClockTime(exitWhen)}</span>
+            ) : null}
             {duration ? <span className="font-medium text-foreground">{duration}</span> : null}
             {trade.session ? <span className="capitalize">{trade.session.toLowerCase()}</span> : null}
           </div>
@@ -433,8 +438,8 @@ function TradeCardMinimal({
         </p>
       ) : (
         <div className="relative mt-8 grid gap-3 sm:grid-cols-2">
-          <StatTile label="Entry" value={formatPrice(trade.entryPrice)} sub={entryWhen ? format(entryWhen, "HH:mm:ss") : undefined} />
-          <StatTile label="Exit" value={formatPrice(trade.exitPrice)} sub={exitWhen ? format(exitWhen, "HH:mm:ss") : undefined} />
+          <StatTile label="Entry" value={formatPrice(trade.entryPrice)} sub={entryWhen ? formatWallClockTime(entryWhen) ?? undefined : undefined} />
+          <StatTile label="Exit" value={formatPrice(trade.exitPrice)} sub={exitWhen ? formatWallClockTime(exitWhen) ?? undefined : undefined} />
           <StatTile label="Qty" value={formatQty(trade.size)} />
           <StatTile label="Duration" value={duration ?? "—"} />
           <StatTile
@@ -598,13 +603,13 @@ function TradeCardWithImage({
               compact={isLarge}
               label="Entry"
               value={formatPrice(trade.entryPrice)}
-              sub={entryWhen ? format(entryWhen, "HH:mm:ss") : undefined}
+              sub={entryWhen ? formatWallClockTime(entryWhen) ?? undefined : undefined}
             />
             <DetailRow
               compact={isLarge}
               label="Exit"
               value={formatPrice(trade.exitPrice)}
-              sub={exitWhen ? format(exitWhen, "HH:mm:ss") : undefined}
+              sub={exitWhen ? formatWallClockTime(exitWhen) ?? undefined : undefined}
             />
             <DetailRow compact={isLarge} label="Qty" value={formatQty(trade.size)} />
             <DetailRow compact={isLarge} label="Duration" value={duration ?? "—"} />

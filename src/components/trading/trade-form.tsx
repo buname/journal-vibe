@@ -19,7 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { TimePicker } from "@/components/ui/time-picker";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { formatTradeDuration } from "@/components/trading/trade-card-utils";
-import { formatInputDate } from "@/lib/format";
+import { formatInputDate, wallClockToPickerDate } from "@/lib/format";
 import { DB_OFFLINE_MESSAGE } from "@/lib/db-errors";
 import { INSTRUMENTS, findInstrument } from "@/lib/trading/instruments";
 
@@ -124,13 +124,13 @@ export function TradeForm(props: TradeFormProps) {
   const [tradeDate, setTradeDate] = useState(defaults.date);
   const [entryTimeDate, setEntryTimeDate] = useState<Date>(() => {
     if (props.mode === "edit" && props.trade.entryTime) {
-      return new Date(props.trade.entryTime);
+      return wallClockToPickerDate(new Date(props.trade.entryTime));
     }
     return parseTradeDateYmd(defaults.date);
   });
   const [exitTimeDate, setExitTimeDate] = useState<Date>(() => {
     if (props.mode === "edit" && props.trade.exitTime) {
-      return new Date(props.trade.exitTime);
+      return wallClockToPickerDate(new Date(props.trade.exitTime));
     }
     const base = parseTradeDateYmd(defaults.date);
     base.setHours(base.getHours() + 1);

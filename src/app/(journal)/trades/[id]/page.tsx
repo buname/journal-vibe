@@ -1,4 +1,3 @@
-import { format } from "date-fns";
 import { ChevronLeft, Pencil } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -12,7 +11,7 @@ import { TradeDeleteButton } from "@/components/trading/trade-delete-button";
 import { Button } from "@/components/ui/button";
 import { ImageGallery } from "@/components/ui/image-gallery";
 import { prisma } from "@/lib/db";
-import { formatListDate } from "@/lib/format";
+import { formatListDate, formatWallClockTime, wallClockToPickerDate } from "@/lib/format";
 import { parseTag } from "@/lib/tag-links";
 
 type TradeEntryPageProps = {
@@ -160,7 +159,17 @@ export default async function TradeEntryPage({ params }: TradeEntryPageProps) {
           <Detail
             label="Entry time"
             value={
-              trade.entryTime ? format(trade.entryTime, "MMM d, HH:mm:ss") : "—"
+              trade.entryTime
+                ? `${formatListDate(wallClockToPickerDate(trade.entryTime))} · ${formatWallClockTime(trade.entryTime) ?? "—"}`
+                : "—"
+            }
+          />
+          <Detail
+            label="Exit time"
+            value={
+              trade.exitTime
+                ? `${formatListDate(wallClockToPickerDate(trade.exitTime))} · ${formatWallClockTime(trade.exitTime) ?? "—"}`
+                : "—"
             }
           />
           <Detail
