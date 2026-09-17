@@ -30,6 +30,10 @@ function pct(n: number): string {
 type KpiStatus = "up" | "down";
 
 function buildKpis(metrics: TradingMetrics) {
+  const profitFactor = Number.isFinite(metrics.profitFactor)
+    ? metrics.profitFactor.toFixed(2)
+    : "—";
+
   return [
     {
       label: "Total PnL",
@@ -39,13 +43,13 @@ function buildKpis(metrics: TradingMetrics) {
     },
     {
       label: "Win Rate",
-      value: pct(metrics.winRate),
+      value: pct(Number.isFinite(metrics.winRate) ? metrics.winRate : 0),
       change: `${metrics.winningTrades}W / ${metrics.losingTrades}L`,
       status: (metrics.winRate >= 50 ? "up" : "down") as KpiStatus,
     },
     {
       label: "Profit Factor",
-      value: metrics.profitFactor.toFixed(2),
+      value: profitFactor,
       change: metrics.profitFactor >= 1 ? "above 1" : "below 1",
       status: (metrics.profitFactor >= 1 ? "up" : "down") as KpiStatus,
     },
