@@ -58,7 +58,7 @@ function formatPnl(value: number) {
 }
 
 function heatClass(pnl: number, maxAbs: number, hasTrades: boolean) {
-  if (!hasTrades) return "";
+  if (!hasTrades) return "bg-background";
   if (!pnl || maxAbs === 0) return "bg-muted/40";
   const ratio = Math.min(1, Math.abs(pnl) / maxAbs);
   if (pnl > 0) {
@@ -121,8 +121,8 @@ export function PnlCalendar({
   }
 
   return (
-    <div className={cn("space-y-3 p-3 sm:p-4", className)}>
-      <div className="flex items-center justify-between gap-2">
+    <div className={cn("space-y-3 p-2 sm:p-3", className)}>
+      <div className="flex items-center justify-between gap-2 px-1">
         <div className="min-w-0 overflow-hidden">
           <AnimatePresence mode="wait" initial={false}>
             <motion.h3
@@ -131,13 +131,13 @@ export function PnlCalendar({
               animate={{ opacity: 1, y: 0 }}
               exit={reduce ? undefined : { opacity: 0, y: direction >= 0 ? -8 : 8 }}
               transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-              className="text-sm font-semibold tracking-tight sm:text-base"
+              className="text-base font-semibold tracking-tight sm:text-lg"
             >
               {format(monthStart, "MMMM yyyy")}
             </motion.h3>
           </AnimatePresence>
           <p className="text-[11px] text-muted-foreground sm:text-xs">
-            Daily net PnL · square grid
+            Daily net PnL
           </p>
         </div>
         <div className="inline-flex shrink-0 -space-x-px rounded-md shadow-sm">
@@ -145,7 +145,7 @@ export function PnlCalendar({
             type="button"
             variant="outline"
             size="icon"
-            className="size-8 rounded-none first:rounded-s-md hover:scale-100 active:scale-100"
+            className="size-8 rounded-none first:rounded-s-md"
             onClick={goPrev}
             aria-label="Previous month"
           >
@@ -154,7 +154,7 @@ export function PnlCalendar({
           <Button
             type="button"
             variant="outline"
-            className="h-8 rounded-none px-2.5 text-xs hover:scale-100 active:scale-100"
+            className="h-8 rounded-none px-2.5 text-xs"
             onClick={goToday}
           >
             Today
@@ -163,7 +163,7 @@ export function PnlCalendar({
             type="button"
             variant="outline"
             size="icon"
-            className="size-8 rounded-none last:rounded-e-md hover:scale-100 active:scale-100"
+            className="size-8 rounded-none last:rounded-e-md"
             onClick={goNext}
             aria-label="Next month"
           >
@@ -172,14 +172,15 @@ export function PnlCalendar({
         </div>
       </div>
 
-      <div className="mx-auto w-[min(100%,24rem)] overflow-hidden rounded-lg border border-border bg-card">
-        <div className="grid grid-cols-7 border-b border-border bg-muted/40 text-center text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">
-          {["S", "M", "T", "W", "T", "F", "S"].map((label, i) => (
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+        <div className="grid grid-cols-7 border-b border-border bg-muted/30 text-center text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+          {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((label) => (
             <div
-              key={`${label}-${i}`}
-              className="border-r border-border py-1 last:border-r-0"
+              key={label}
+              className="border-r border-border py-2 last:border-r-0"
             >
-              {label}
+              <span className="hidden sm:inline">{label}</span>
+              <span className="sm:hidden">{label.charAt(0)}</span>
             </div>
           ))}
         </div>
@@ -190,47 +191,45 @@ export function PnlCalendar({
             initial={
               reduce
                 ? false
-                : { opacity: 0, x: direction === 0 ? 0 : direction > 0 ? 20 : -20 }
+                : { opacity: 0, x: direction === 0 ? 0 : direction > 0 ? 28 : -28 }
             }
             animate={{ opacity: 1, x: 0 }}
             exit={
               reduce
                 ? undefined
-                : { opacity: 0, x: direction === 0 ? 0 : direction > 0 ? -20 : 20 }
+                : { opacity: 0, x: direction === 0 ? 0 : direction > 0 ? -28 : 28 }
             }
-            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-            className="grid grid-cols-7 gap-0"
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            className="grid grid-cols-7 gap-0 [&>button]:-mb-px [&>button]:-mr-px [&>button]:border [&>button]:border-border"
           >
             {days.map((day, index) => {
               const inMonth = isSameMonth(day, monthStart);
               const { pnl, count } = dayStats(day, data);
               const hasTrades = count > 0;
               const active = selected ? isSameDay(day, selected) : false;
-              const isLastCol = index % 7 === 6;
-              const isLastRow = index >= days.length - 7;
 
               return (
-                <button
+                <motion.button
                   key={day.toISOString()}
                   type="button"
                   onClick={() => setSelected(day)}
+                  whileTap={reduce ? undefined : { scale: 0.995 }}
+                  transition={{ type: "spring", stiffness: 420, damping: 28 }}
                   className={cn(
-                    "relative box-border flex aspect-square w-full flex-col rounded-none p-1 text-left shadow-none outline-none",
-                    !isLastCol && "border-r border-border",
-                    !isLastRow && "border-b border-border",
-                    !inMonth && "bg-muted/30 text-muted-foreground",
-                    inMonth && !hasTrades && "bg-card hover:bg-muted/40",
+                    "relative flex aspect-square w-full flex-col rounded-none p-2 text-left transition-colors sm:p-2.5",
+                    !inMonth && "bg-muted/25 text-muted-foreground",
                     heatClass(pnl, maxAbs, hasTrades && inMonth),
-                    active && "z-[1] ring-2 ring-inset ring-primary/55",
+                    !hasTrades && inMonth && "hover:bg-muted/35",
+                    active && "z-[1] ring-2 ring-inset ring-primary/50",
                   )}
                 >
                   <span
                     className={cn(
-                      "inline-flex size-4 items-center justify-center rounded-full text-[9px] font-semibold tabular-nums",
+                      "inline-flex size-6 items-center justify-center rounded-full text-[11px] font-semibold tabular-nums sm:size-7 sm:text-xs",
                       isToday(day)
                         ? "bg-primary text-primary-foreground"
                         : inMonth
-                          ? "text-foreground/75"
+                          ? "text-foreground/80"
                           : "text-muted-foreground",
                     )}
                   >
@@ -238,21 +237,26 @@ export function PnlCalendar({
                   </span>
 
                   {hasTrades && inMonth ? (
-                    <div className="mt-auto space-y-0.5">
+                    <motion.div
+                      initial={reduce ? false : { opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.25, delay: 0.02 * (index % 7) }}
+                      className="mt-auto space-y-1"
+                    >
                       <p
                         className={cn(
-                          "text-[9px] font-bold leading-none tabular-nums sm:text-[10px]",
+                          "text-xs font-bold leading-none tabular-nums sm:text-sm",
                           pnl >= 0 ? "text-emerald-700" : "text-rose-700",
                         )}
                       >
                         {formatPnl(pnl)}
                       </p>
-                      <p className="text-[8px] leading-none text-muted-foreground">
+                      <p className="text-[10px] leading-none text-muted-foreground sm:text-[11px]">
                         {count} fill{count === 1 ? "" : "s"}
                       </p>
-                    </div>
+                    </motion.div>
                   ) : null}
-                </button>
+                </motion.button>
               );
             })}
           </motion.div>
