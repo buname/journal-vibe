@@ -169,12 +169,17 @@ function DirectionPill({ direction }: { direction: string }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide",
-        isLong ? "bg-emerald-500/12 text-emerald-700" : "bg-rose-500/12 text-rose-700",
+        "inline-flex shrink-0 items-center justify-center",
+        isLong ? "text-emerald-600" : "text-rose-600",
       )}
+      aria-label={direction}
+      title={direction}
     >
-      {isLong ? <ArrowUpRight className="size-3" /> : <ArrowDownRight className="size-3" />}
-      {direction}
+      {isLong ? (
+        <ArrowUpRight className="size-4" strokeWidth={2.5} />
+      ) : (
+        <ArrowDownRight className="size-4" strokeWidth={2.5} />
+      )}
     </span>
   );
 }
